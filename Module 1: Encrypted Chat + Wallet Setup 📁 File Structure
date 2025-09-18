@@ -1,0 +1,15 @@
+client/
+├── pages/
+│   └── chat.vue
+├── components/
+│   └── ChatBox.vue
+├── composables/
+│   └── useGun.js
+server/
+├── models/
+│   └── Wallet.js
+├── controllers/
+│   └── walletController.js
+├── routes/
+│   └── walletRoutes.js
+├── server.js
