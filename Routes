@@ -1,0 +1,26 @@
+// server/routes/postRoutes.js
+const express = require('express')
+const router = express.Router()
+const { createPost, likePost } = require('../controllers/postController')
+
+router.post('/create', createPost)
+router.post('/like', likePost)
+
+module.exports = router
+// server/routes/postRoutes.js
+const express = require('express')
+const router = express.Router()
+const { createPost, likePost } = require('../controllers/postController')
+
+router.post('/create', createPost)
+router.post('/like', likePost)
+
+module.exports = router
+// server/routes/giftRoutes.js
+const express = require('express')
+const router = express.Router()
+const { sendGift } = require('../controllers/giftController')
+
+router.post('/send', sendGift)
+
+module.exports = router
