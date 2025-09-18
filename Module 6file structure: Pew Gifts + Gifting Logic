@@ -1,0 +1,16 @@
+client/
+├── pages/
+│   └── gift.vue
+├── components/
+│   ├── GiftButton.vue
+│   ├── GiftHistory.vue
+│   └── GiftSummary.vue
+server/
+├── models/
+│   └── PewGift.js
+├── controllers/
+│   └── pewGiftController.js
+├── routes/
+│   └── pewGiftRoutes.js
+smart-contracts/
+├── PewGift.sol
