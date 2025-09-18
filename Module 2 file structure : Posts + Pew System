@@ -1,0 +1,20 @@
+client/
+├── pages/
+│   └── posts.vue
+├── components/
+│   ├── PostCard.vue
+│   ├── PewCard.vue
+│   └── CreatePost.vue
+server/
+├── models/
+│   ├── Post.js
+│   ├── Pew.js
+│   └── Gift.js
+├── controllers/
+│   ├── postController.js
+│   ├── pewController.js
+│   └── giftController.js
+├── routes/
+│   ├── postRoutes.js
+│   ├── pewRoutes.js
+│   └── giftRoutes.js
