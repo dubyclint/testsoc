@@ -1,0 +1,14 @@
+client/
+├── pages/
+│   └── admin.vue
+├── components/
+│   ├── AdminUserList.vue
+│   ├── AdminPostModeration.vue
+│   ├── AdminMatchApproval.vue
+│   ├── AdminEscrowControl.vue
+│   └── AdminFeeManager.vue
+server/
+├── controllers/
+│   └── adminController.js
+├── routes/
+│   └── adminRoutes.js
