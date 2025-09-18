@@ -1,0 +1,17 @@
+client/
+├── pages/
+│   └── universe.vue
+├── components/
+│   ├── PalRequest.vue
+│   ├── PalList.vue
+│   └── UniverseChat.vue
+server/
+├── models/
+│   ├── Pal.js
+│   └── UniverseMessage.js
+├── controllers/
+│   ├── palController.js
+│   └── universeController.js
+├── routes/
+│   ├── palRoutes.js
+│   └── universeRoutes.js
