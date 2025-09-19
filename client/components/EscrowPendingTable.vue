@@ -1,5 +1,49 @@
+<template>
+  <div class="escrow-table">
+    <h3>📋 Pending Escrow Deals</h3>
+
+    <button @click="exportCSV" v-if="user.role === 'admin'">📤 Export to CSV</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th @click="sortBy('tradeId')">Deal ID</th>
+          <th @click="sortBy('buyerId')">Buyer</th>
+          <th @click="sortBy('sellerId')">Seller</th>
+          <th @click="sortBy('amount')">Amount</th>
+          <th @click="sortBy('timestamp')">Created</th>
+          <th v-if="user.role === 'admin'">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="deal in sortedFilteredDeals" :key="deal._id">
+          <td>{{ deal.tradeId }}</td>
+          <td>{{ deal.buyerId }}</td>
+          <td>{{ deal.sellerId }}</td>
+          <td>{{ deal.amount }}</td>
+          <td>{{ formatDate(deal.timestamp) }}</td>
+          <td v-if="user.role === 'admin'">
+            <button @click="confirmAction('release', deal.tradeId)">Release</button>
+            <button @click="confirmAction('refund', deal.tradeId)">Refund</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal">
+        <h4>Confirm {{ actionType }} Deal</h4>
+        <p>Are you sure you want to {{ actionType }} deal #{{ selectedDealId }}?</p>
+        <button @click="executeAction">Yes, Confirm</button>
+        <button @click="cancelAction">Cancel</button>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useUserStore } from '@/stores/user'
 import { useEscrowContract } from '@/composables/useEscrowContract'
 import { useToast } from 'vue-toastification'
 
@@ -12,6 +56,7 @@ const props = defineProps({
   endDate: String
 })
 
+const user = useUserStore()
 const deals = ref([])
 const sortKey = ref('timestamp')
 const sortAsc = ref(false)
@@ -129,49 +174,6 @@ function exportCSV() {
 }
 </script>
 
-<template>
-  <div class="escrow-table">
-    <h3>📋 Pending Escrow Deals</h3>
-
-    <button @click="exportCSV">📤 Export to CSV</button>
-
-    <table>
-      <thead>
-        <tr>
-          <th @click="sortBy('tradeId')">Deal ID</th>
-          <th @click="sortBy('buyerId')">Buyer</th>
-          <th @click="sortBy('sellerId')">Seller</th>
-          <th @click="sortBy('amount')">Amount</th>
-          <th @click="sortBy('timestamp')">Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="deal in sortedFilteredDeals" :key="deal._id">
-          <td>{{ deal.tradeId }}</td>
-          <td>{{ deal.buyerId }}</td>
-          <td>{{ deal.sellerId }}</td>
-          <td>{{ deal.amount }}</td>
-          <td>{{ formatDate(deal.timestamp) }}</td>
-          <td>
-            <button @click="confirmAction('release', deal.tradeId)">Release</button>
-            <button @click="confirmAction('refund', deal.tradeId)">Refund</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h4>Confirm {{ actionType }} Deal</h4>
-        <p>Are you sure you want to {{ actionType }} deal #{{ selectedDealId }}?</p>
-        <button @click="executeAction">Yes, Confirm</button>
-        <button @click="cancelAction">Cancel</button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <style scoped>
 .escrow-table {
   margin-top: 2rem;
@@ -191,24 +193,4 @@ th, td {
   border-bottom: 1px solid #ddd;
 }
 button {
-  margin-right: 0.5rem;
-}
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.modal {
-  background: white;
-  padding: 2rem;
-  border-radius:
-
-
-
-
+  margin-right:
