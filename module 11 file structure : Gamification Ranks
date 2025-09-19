@@ -1,0 +1,22 @@
+client/
+├── components/
+│   ├── RankBadge.vue
+│   ├── RankProgress.vue
+│   ├── RankHideRequest.vue
+│   ├── RankToggle.vue
+│   └── RankAdminPanel.vue
+pages/
+└── admin/
+    └── ranks.vue
+server/
+└── api/
+    └── rank/
+        ├── get.ts
+        ├── update.ts
+        ├── config.ts
+        ├── hide-request.ts
+        ├── hide-approve.ts
+        ├── toggle.ts
+        ├── settings.ts
+stores/
+└── rank.ts
