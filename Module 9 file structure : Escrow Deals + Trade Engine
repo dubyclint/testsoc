@@ -1,0 +1,16 @@
+client/
+├── pages/
+│   └── escrow.vue
+├── components/
+│   ├── EscrowForm.vue
+│   ├── EscrowHistory.vue
+│   └── EscrowStatus.vue
+server/
+├── models/
+│   └── Escrow.js
+├── controllers/
+│   └── escrowTradeController.js
+├── routes/
+│   └── escrowTradeRoutes.js
+smart-contracts/
+├── EscrowDeal.sol
