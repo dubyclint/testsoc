@@ -1,55 +1,18 @@
-<template>
-  <div class="escrow-table">
-    <h3>📋 Pending Escrow Deals</h3>
-
-    <label>Filter by Buyer:</label>
-    <input v-model="filterBuyer" placeholder="Enter buyer address" />
-
-    <table>
-      <thead>
-        <tr>
-          <th @click="sortBy('tradeId')">Deal ID</th>
-          <th @click="sortBy('buyerId')">Buyer</th>
-          <th @click="sortBy('sellerId')">Seller</th>
-          <th @click="sortBy('amount')">Amount</th>
-          <th @click="sortBy('timestamp')">Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="deal in sortedFilteredDeals" :key="deal._id">
-          <td>{{ deal.tradeId }}</td>
-          <td>{{ deal.buyerId }}</td>
-          <td>{{ deal.sellerId }}</td>
-          <td>{{ deal.amount }}</td>
-          <td>{{ formatDate(deal.timestamp) }}</td>
-          <td>
-            <button @click="confirmAction('release', deal.tradeId)">Release</button>
-            <button @click="confirmAction('refund', deal.tradeId)">Refund</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Confirmation Modal -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h4>Confirm {{ actionType }} Deal</h4>
-        <p>Are you sure you want to {{ actionType }} deal #{{ selectedDealId }}?</p>
-        <button @click="executeAction">Yes, Confirm</button>
-        <button @click="cancelAction">Cancel</button>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useEscrowContract } from '@/composables/useEscrowContract'
 import { useToast } from 'vue-toastification'
 
+const props = defineProps({
+  search: String,
+  status: String,
+  minAmount: Number,
+  maxAmount: Number,
+  startDate: String,
+  endDate: String
+})
+
 const deals = ref([])
-const filterBuyer = ref('')
 const sortKey = ref('timestamp')
 const sortAsc = ref(false)
 const showModal = ref(false)
@@ -62,7 +25,7 @@ onMounted(async () => {
   try {
     const res = await fetch('http://localhost:3000/api/escrow/history?status=pending')
     const allDeals = await res.json()
-    deals.value = allDeals.filter(d => !d.isReleased && !d.isRefunded)
+    deals.value = allDeals
   } catch (err) {
     toast.error(`Failed to load deals: ${err.message}`)
   }
@@ -82,17 +45,37 @@ function sortBy(key) {
 }
 
 const sortedFilteredDeals = computed(() => {
-  let filtered = deals.value
-  if (filterBuyer.value) {
-    filtered = filtered.filter(d => d.buyerId.includes(filterBuyer.value))
-  }
-  return filtered.sort((a, b) => {
-    const valA = a[sortKey.value]
-    const valB = b[sortKey.value]
-    return sortAsc.value
-      ? valA > valB ? 1 : -1
-      : valA < valB ? 1 : -1
-  })
+  return deals.value
+    .filter(d => {
+      const matchesSearch =
+        !props.search ||
+        d.buyerId.includes(props.search) ||
+        d.sellerId.includes(props.search)
+
+      const matchesStatus =
+        !props.status ||
+        (props.status === 'pending' && !d.isReleased && !d.isRefunded) ||
+        (props.status === 'released' && d.isReleased) ||
+        (props.status === 'refunded' && d.isRefunded)
+
+      const matchesAmount =
+        (!props.minAmount || d.amount >= props.minAmount) &&
+        (!props.maxAmount || d.amount <= props.maxAmount)
+
+      const created = new Date(d.timestamp)
+      const matchesDate =
+        (!props.startDate || created >= new Date(props.startDate)) &&
+        (!props.endDate || created <= new Date(props.endDate))
+
+      return matchesSearch && matchesStatus && matchesAmount && matchesDate
+    })
+    .sort((a, b) => {
+      const valA = a[sortKey.value]
+      const valB = b[sortKey.value]
+      return sortAsc.value
+        ? valA > valB ? 1 : -1
+        : valA < valB ? 1 : -1
+    })
 })
 
 function confirmAction(type, id) {
@@ -121,7 +104,73 @@ async function executeAction() {
   }
   cancelAction()
 }
+
+function exportCSV() {
+  const rows = sortedFilteredDeals.value.map(d => ({
+    tradeId: d.tradeId,
+    buyerId: d.buyerId,
+    sellerId: d.sellerId,
+    amount: d.amount,
+    timestamp: formatDate(d.timestamp),
+    status: d.isReleased ? 'Released' : d.isRefunded ? 'Refunded' : 'Pending'
+  }))
+
+  const header = Object.keys(rows[0]).join(',')
+  const body = rows.map(r => Object.values(r).join(',')).join('\n')
+  const csv = `${header}\n${body}`
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.setAttribute('download', 'escrow_audit_log.csv')
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
 </script>
+
+<template>
+  <div class="escrow-table">
+    <h3>📋 Pending Escrow Deals</h3>
+
+    <button @click="exportCSV">📤 Export to CSV</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th @click="sortBy('tradeId')">Deal ID</th>
+          <th @click="sortBy('buyerId')">Buyer</th>
+          <th @click="sortBy('sellerId')">Seller</th>
+          <th @click="sortBy('amount')">Amount</th>
+          <th @click="sortBy('timestamp')">Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="deal in sortedFilteredDeals" :key="deal._id">
+          <td>{{ deal.tradeId }}</td>
+          <td>{{ deal.buyerId }}</td>
+          <td>{{ deal.sellerId }}</td>
+          <td>{{ deal.amount }}</td>
+          <td>{{ formatDate(deal.timestamp) }}</td>
+          <td>
+            <button @click="confirmAction('release', deal.tradeId)">Release</button>
+            <button @click="confirmAction('refund', deal.tradeId)">Refund</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal">
+        <h4>Confirm {{ actionType }} Deal</h4>
+        <p>Are you sure you want to {{ actionType }} deal #{{ selectedDealId }}?</p>
+        <button @click="executeAction">Yes, Confirm</button>
+        <button @click="cancelAction">Cancel</button>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .escrow-table {
@@ -144,8 +193,6 @@ th, td {
 button {
   margin-right: 0.5rem;
 }
-
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -160,10 +207,8 @@ button {
 .modal {
   background: white;
   padding: 2rem;
-  border-radius: 8px;
-  text-align: center;
-}
-</style>
+  border-radius:
+
 
 
 
