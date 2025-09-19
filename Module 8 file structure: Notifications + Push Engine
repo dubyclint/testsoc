@@ -1,0 +1,14 @@
+client/
+├── pages/
+│   └── notifications.vue
+├── components/
+│   └── NotificationCenter.vue
+server/
+├── models/
+│   └── Notification.js
+├── controllers/
+│   └── notificationController.js
+├── routes/
+│   └── notificationRoutes.js
+├── utils/
+│   └── pushEngine.js
