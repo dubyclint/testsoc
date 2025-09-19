@@ -12,6 +12,7 @@
           <th @click="sortBy('sellerId')">Seller</th>
           <th @click="sortBy('amount')">Amount</th>
           <th @click="sortBy('timestamp')">Created</th>
+          <th>Alert</th>
           <th v-if="user.role === 'admin'">Actions</th>
         </tr>
       </thead>
@@ -26,6 +27,16 @@
           <td>{{ deal.sellerId }}</td>
           <td>{{ deal.amount }}</td>
           <td>{{ formatDate(deal.timestamp) }}</td>
+          <td>
+            <span v-if="isStale(deal)" class="tooltip">
+              ⚠️
+              <span class="tooltiptext">Stale: Over 72 hours old</span>
+            </span>
+            <span v-if="isLarge(deal)" class="tooltip">
+              💰
+              <span class="tooltiptext">Large: Over 10,000 USDC</span>
+            </span>
+          </td>
           <td v-if="user.role === 'admin'">
             <button @click="confirmAction('release', deal.tradeId)">Release</button>
             <button @click="confirmAction('refund', deal.tradeId)">Refund</button>
@@ -210,6 +221,31 @@ button {
 }
 .alert {
   background-color: #fff3cd;
+}
+.tooltip {
+  position: relative;
+  cursor: help;
+  margin-right: 0.5rem;
+}
+.tooltiptext {
+  visibility: hidden;
+  width: max-content;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
 .modal-overlay {
   position: fixed;
