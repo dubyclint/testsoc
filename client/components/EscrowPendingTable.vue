@@ -24,14 +24,24 @@
           <td>{{ deal.amount }}</td>
           <td>{{ formatDate(deal.timestamp) }}</td>
           <td>
-            <button @click="release(deal.tradeId)">Release</button>
-            <button @click="refund(deal.tradeId)">Refund</button>
+            <button @click="confirmAction('release', deal.tradeId)">Release</button>
+            <button @click="confirmAction('refund', deal.tradeId)">Refund</button>
           </td>
         </tr>
       </tbody>
     </table>
 
     <p v-if="txHash">✅ Action complete: {{ txHash }}</p>
+
+    <!-- Confirmation Modal -->
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal">
+        <h4>Confirm {{ actionType }} Deal</h4>
+        <p>Are you sure you want to {{ actionType }} deal #{{ selectedDealId }}?</p>
+        <button @click="executeAction">Yes, Confirm</button>
+        <button @click="cancelAction">Cancel</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -44,6 +54,9 @@ const filterBuyer = ref('')
 const sortKey = ref('timestamp')
 const sortAsc = ref(false)
 const txHash = ref('')
+const showModal = ref(false)
+const selectedDealId = ref(null)
+const actionType = ref('')
 const { releaseDeal, refundDeal } = useEscrowContract()
 
 onMounted(async () => {
@@ -79,12 +92,25 @@ const sortedFilteredDeals = computed(() => {
   })
 })
 
-async function release(id) {
-  txHash.value = await releaseDeal(id)
+function confirmAction(type, id) {
+  actionType.value = type
+  selectedDealId.value = id
+  showModal.value = true
 }
 
-async function refund(id) {
-  txHash.value = await refundDeal(id)
+function cancelAction() {
+  showModal.value = false
+  selectedDealId.value = null
+  actionType.value = ''
+}
+
+async function executeAction() {
+  if (actionType.value === 'release') {
+    txHash.value = await releaseDeal(selectedDealId.value)
+  } else if (actionType.value === 'refund') {
+    txHash.value = await refundDeal(selectedDealId.value)
+  }
+  cancelAction()
 }
 </script>
 
@@ -109,5 +135,25 @@ th, td {
 button {
   margin-right: 0.5rem;
 }
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
 </style>
+
 
