@@ -16,7 +16,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="deal in sortedFilteredDeals" :key="deal._id">
+        <tr
+          v-for="deal in sortedFilteredDeals"
+          :key="deal._id"
+          :class="{ alert: isStale(deal) || isLarge(deal) }"
+        >
           <td>{{ deal.tradeId }}</td>
           <td>{{ deal.buyerId }}</td>
           <td>{{ deal.sellerId }}</td>
@@ -87,6 +91,15 @@ function sortBy(key) {
     sortKey.value = key
     sortAsc.value = true
   }
+}
+
+function isStale(deal) {
+  const ageHours = (Date.now() - new Date(deal.timestamp)) / 36e5
+  return ageHours > 72
+}
+
+function isLarge(deal) {
+  return deal.amount > 10000
 }
 
 const sortedFilteredDeals = computed(() => {
@@ -193,4 +206,26 @@ th, td {
   border-bottom: 1px solid #ddd;
 }
 button {
-  margin-right:
+  margin-right: 0.5rem;
+}
+.alert {
+  background-color: #fff3cd;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+}
+</style>
+
