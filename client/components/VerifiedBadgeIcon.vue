@@ -4,19 +4,24 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useVerifiedStore } from '@/stores/verified'
+
 const props = defineProps({ userId: String })
 const verified = ref(false)
 
+const store = useVerifiedStore()
+
 onMounted(async () => {
-  const res = await fetch(`/api/verified/status?userId=${props.userId}`)
-  const data = await res.json()
-  verified.value = data.status === 'approved'
+  const status = await store.fetchStatus(props.userId)
+  verified.value = status === 'approved'
 })
 </script>
 
 <style scoped>
 .badge-icon {
   margin-left: 0.3rem;
+  vertical-align: middle;
   color: #2c7be5;
 }
 </style>
+
