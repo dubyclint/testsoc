@@ -31,8 +31,6 @@
       </tbody>
     </table>
 
-    <p v-if="txHash">✅ Action complete: {{ txHash }}</p>
-
     <!-- Confirmation Modal -->
     <div v-if="showModal" class="modal-overlay">
       <div class="modal">
@@ -48,21 +46,26 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useEscrowContract } from '@/composables/useEscrowContract'
+import { useToast } from 'vue-toastification'
 
 const deals = ref([])
 const filterBuyer = ref('')
 const sortKey = ref('timestamp')
 const sortAsc = ref(false)
-const txHash = ref('')
 const showModal = ref(false)
 const selectedDealId = ref(null)
 const actionType = ref('')
+const toast = useToast()
 const { releaseDeal, refundDeal } = useEscrowContract()
 
 onMounted(async () => {
-  const res = await fetch('http://localhost:3000/api/escrow/history?status=pending')
-  const allDeals = await res.json()
-  deals.value = allDeals.filter(d => !d.isReleased && !d.isRefunded)
+  try {
+    const res = await fetch('http://localhost:3000/api/escrow/history?status=pending')
+    const allDeals = await res.json()
+    deals.value = allDeals.filter(d => !d.isReleased && !d.isRefunded)
+  } catch (err) {
+    toast.error(`Failed to load deals: ${err.message}`)
+  }
 })
 
 function formatDate(dateStr) {
@@ -105,10 +108,16 @@ function cancelAction() {
 }
 
 async function executeAction() {
-  if (actionType.value === 'release') {
-    txHash.value = await releaseDeal(selectedDealId.value)
-  } else if (actionType.value === 'refund') {
-    txHash.value = await refundDeal(selectedDealId.value)
+  try {
+    if (actionType.value === 'release') {
+      await releaseDeal(selectedDealId.value)
+      toast.success(`✅ Deal #${selectedDealId.value} released`)
+    } else if (actionType.value === 'refund') {
+      await refundDeal(selectedDealId.value)
+      toast.success(`✅ Deal #${selectedDealId.value} refunded`)
+    }
+  } catch (err) {
+    toast.error(`❌ Failed to ${actionType.value} deal: ${err.message}`)
   }
   cancelAction()
 }
@@ -155,5 +164,6 @@ button {
   text-align: center;
 }
 </style>
+
 
 
