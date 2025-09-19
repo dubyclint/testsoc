@@ -1,12 +1,9 @@
 <template>
   <div class="notification-center">
-    <h3>Notifications</h3>
+    <h4>🔔 Escrow Notifications</h4>
     <ul>
-      <li v-for="note in notifications" :key="note._id">
-        <span :class="{ unread: !note.isRead }">
-          {{ note.message }} — {{ formatDate(note.timestamp) }}
-        </span>
-        <button v-if="!note.isRead" @click="markAsRead(note._id)">Mark as read</button>
+      <li v-for="note in notifications" :key="note.id">
+        <strong>{{ note.type.toUpperCase() }}</strong> — Deal #{{ note.dealId }} — {{ formatDate(note.timestamp) }}
       </li>
     </ul>
   </div>
@@ -14,35 +11,51 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useToast } from 'vue-toastification'
 
 const notifications = ref([])
-
-onMounted(async () => {
-  const res = await fetch('http://localhost:3000/api/notification/list?userId=user123')
-  notifications.value = await res.json()
-})
-
-async function markAsRead(id) {
-  await fetch('http://localhost:3000/api/notification/read', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ notificationId: id })
-  })
-  const note = notifications.value.find(n => n._id === id)
-  if (note) note.isRead = true
-}
+const toast = useToast()
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString()
 }
+
+onMounted(() => {
+  const socket = io('http://localhost:3000') // adjust if needed
+  socket.on('escrow:update', ({ dealId, action }) => {
+    const entry = {
+      id: Date.now(),
+      dealId,
+      type: action,
+      timestamp: new Date().toISOString()
+    }
+    notifications.value.unshift(entry)
+    toast.info(`🔔 Deal #${dealId} was ${action}`)
+  })
+})
 </script>
 
 <style scoped>
 .notification-center {
-  border: 1px solid #ccc;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 300px;
+  background: #fff;
+  border: 1px solid #ddd;
   padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
 }
-.unread {
-  font-weight: bold;
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 </style>
+
