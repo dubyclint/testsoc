@@ -1,3 +1,5 @@
+import { sendNotification } from '~/server/utils/sendNotification'
+
 export default defineEventHandler(async (event) => {
   const { userId, reason } = await readBody(event)
 
@@ -12,6 +14,8 @@ export default defineEventHandler(async (event) => {
       }
     }
   )
+
+  await sendNotification(userId, 'filter', `Your match filters were rejected: '${reason.slice(0, 40)}'`)
 
   return { success: true }
 })
