@@ -18,6 +18,8 @@
       <audio controls :src="ad.mediaUrl" />
     </div>
 
+    <div v-else-if="ad.type === 'external'" v-html="ad.html" />
+
     <small class="promoted-label">Promoted</small>
   </div>
 </template>
@@ -32,32 +34,23 @@ const ad = ref(null)
 const shouldRender = ref(false)
 
 onMounted(async () => {
-  await store.fetchServedAds()
+  await store.fetchServedAds(props.page)
   const candidates = store.servedAds.filter(a =>
     store.isAdAllowedOnPage(props.page, a.type)
   )
   if (candidates.length > 0) {
     ad.value = candidates[0]
     shouldRender.value = true
-    store.trackAd(ad.value.id, 'impression')
+    if (ad.value.type !== 'external') {
+      store.trackAd(ad.value.id, 'impression')
+    }
   }
 })
 
 function clickAd() {
-  store.trackAd(ad.value.id, 'click')
-  window.open(ad.value.link, '_blank')
+  if (ad.value.type !== 'external') {
+    store.trackAd(ad.value.id, 'click')
+    window.open(ad.value.link, '_blank')
+  }
 }
 </script>
-
-<style scoped>
-.ad-slot {
-  border: 1px solid #ddd;
-  padding: 1rem;
-  margin: 1rem 0;
-  background: #fff;
-}
-.promoted-label {
-  font-size: 0.75rem;
-  color: #888;
-}
-</style>
