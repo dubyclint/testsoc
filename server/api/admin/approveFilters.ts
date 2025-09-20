@@ -1,4 +1,5 @@
 import { sendNotification } from '~/server/utils/sendNotification'
+import { sendPushAlert } from '~/server/utils/sendPushAlert'
 
 export default defineEventHandler(async (event) => {
   const { userId, approvedFilters } = await readBody(event)
@@ -20,6 +21,8 @@ export default defineEventHandler(async (event) => {
   )
 
   await sendNotification(userId, 'filter', 'Your match filters were approved.')
+  await sendPushAlert(userId, 'Match Filters Approved', 'Your filters are now active.')
 
   return { success: true }
 })
+
