@@ -2,6 +2,29 @@
   <div>
     <h3>Ad Format A/B Performance</h3>
 
+    <div class="filters">
+      <select v-model="page">
+        <option value="">All Pages</option>
+        <option value="Home Feed">Home Feed</option>
+        <option value="Explore">Explore</option>
+        <option value="Profile">Profile</option>
+        <option value="Post Detail">Post Detail</option>
+        <option value="Chat Sidebar">Chat Sidebar</option>
+        <option value="Trade Listings">Trade Listings</option>
+      </select>
+
+      <select v-model="region">
+        <option value="">All Regions</option>
+        <option value="Nigeria">Nigeria</option>
+        <option value="Kenya">Kenya</option>
+        <option value="UK">UK</option>
+      </select>
+
+      <input type="date" v-model="startDate" />
+      <input type="date" v-model="endDate" />
+      <button @click="load">Apply Filters</button>
+    </div>
+
     <canvas ref="chart" height="300"></canvas>
 
     <table>
@@ -28,17 +51,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import Chart from 'chart.js/auto'
 
 const rows = ref([])
 const chart = ref(null)
+const page = ref('')
+const region = ref('')
+const startDate = ref('')
+const endDate = ref('')
 
-onMounted(async () => {
-  const res = await fetch('/api/ads/ab-metrics')
+async function load() {
+  const query = new URLSearchParams({
+    page: page.value,
+    region: region.value,
+    startDate: startDate.value,
+    endDate: endDate.value
+  })
+  const res = await fetch(`/api/ads/ab-metrics?${query}`)
   rows.value = await res.json()
   renderChart()
-})
+}
 
 function renderChart() {
   const ctx = chart.value.getContext('2d')
@@ -66,9 +99,16 @@ function renderChart() {
     }
   })
 }
+
+load()
 </script>
 
 <style scoped>
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
 table {
   width: 100%;
   border-collapse: collapse;
