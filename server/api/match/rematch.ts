@@ -1,5 +1,6 @@
 import { computeMatchScore } from '~/server/utils/matchScore'
 import { sendNotification } from '~/server/utils/sendNotification'
+import { sendPushAlert } from '~/server/utils/sendPushAlert'
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user
@@ -21,6 +22,7 @@ export default defineEventHandler(async (event) => {
 
   if (improved.length > 0) {
     await sendNotification(user.id, 'rematch', 'New re-match suggestions are ready.')
+    await sendPushAlert(user.id, 'New Re-Match Available', 'Tap to view your updated suggestions.')
   }
 
   return improved.map(u => ({
@@ -33,3 +35,4 @@ export default defineEventHandler(async (event) => {
     reason: 'Improved compatibility'
   }))
 })
+
