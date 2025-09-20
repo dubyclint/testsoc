@@ -31,3 +31,23 @@ server/
         ├── optimize.ts
 stores/
 └── ads.ts
+// backend file structure
+server/
+└── api/
+    └── ads/
+        ├── submit.ts
+        ├── serve.ts
+        ├── track.ts
+        ├── preview.ts
+        ├── validate.ts
+        ├── bulk-upload.ts
+        ├── external.ts
+        ├── approve.ts
+        ├── pricing.ts
+        ├── targeting.ts
+        ├── fraud-check.ts
+        ├── optimize.ts
+        ├── balance.ts
+        ├── topup.ts
+        ├── pages.ts
+
