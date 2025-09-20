@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const interests = user.interests || []
   const page = getQuery(event).page || 'Home Feed'
 
-  const candidates = await db.collection('ads').find({
+  const internalAds = await db.collection('ads').find({
     status: 'approved',
     location,
     targetRanks: { $in: [rank] },
@@ -15,10 +15,12 @@ export default defineEventHandler(async (event) => {
   const pageRules = await db.collection('adPageRules').find().toArray()
   const externalSources = await db.collection('externalAdSources').find().toArray()
 
+  const externalAds = []
   for (const source of externalSources) {
     const allowed = pageRules.find(p => p.name === page)?.allowed?.external
-    if (allowed) {
-      candidates.push({
+    const valid = source.config && source.config.length > 10
+    if (allowed && valid) {
+      externalAds.push({
         id: `external-${source.platform}`,
         type: 'external',
         html: source.config,
@@ -27,7 +29,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const sorted = candidates.sort((a, b) => (b.bid || 0) - (a.bid || 0))
+  const ads = externalAds.length > 0 ? externalAds : internalAds
+  const sorted = ads.sort((a, b) => (b.bid || 0) - (a.bid || 0))
   return sorted.slice(0, 3)
 })
-
