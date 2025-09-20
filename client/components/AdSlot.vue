@@ -1,71 +1,85 @@
 <template>
   <div v-if="shouldRender" class="ad-slot">
-    <component :is="renderComponent" />
+    <div v-if="ad.type === 'image'">
+      <img :src="ad.mediaUrl" :alt="ad.altText" />
+    </div>
+
+    <div v-else-if="ad.type === 'video'">
+      <video controls :src="ad.mediaUrl" :poster="ad.thumbnail" />
+    </div>
+
+    <div v-else-if="ad.type === 'text'">
+      <h4>{{ ad.headline }}</h4>
+      <p>{{ ad.description }}</p>
+      <button @click="clickAd">{{ ad.cta }}</button>
+    </div>
+
+    <div v-else-if="ad.type === 'audio'">
+      <audio controls :src="ad.mediaUrl" />
+    </div>
+
+    <div v-else-if="ad.type === 'external'" v-html="ad.html" />
+
     <small class="promoted-label">Promoted</small>
   </div>
 </template>
 
 <script setup>
 import { useAdStore } from '@/stores/ads'
-import { onMounted, ref, h } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const props = defineProps({ page: String })
 const store = useAdStore()
 const ad = ref(null)
 const shouldRender = ref(false)
-const renderComponent = ref(null)
 
 onMounted(async () => {
   await store.fetchServedAds(props.page)
   const candidates = store.servedAds.filter(a =>
     store.isAdAllowedOnPage(props.page, a.type)
   )
-
   if (candidates.length > 0) {
     ad.value = candidates[0]
     shouldRender.value = true
 
-    if (ad.value.type === 'external') {
-      try {
-        renderComponent.value = {
-          render: () => h('div', { innerHTML: ad.value.html })
-        }
-      } catch {
-        fallbackToInternal()
-      }
-    } else {
-      fallbackToInternal()
-    }
-
+    // Track impression
     if (ad.value.type !== 'external') {
       store.trackAd(ad.value.id, 'impression')
     }
+
+    // Track A/B variant
+    await fetch('/api/ads/track', {
+      method: 'POST',
+      body: JSON.stringify({
+        adId: ad.value.id,
+        action: 'variant',
+        variant: ad.value.type,
+        page: props.page
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 })
 
-function fallbackToInternal() {
-  const internal = store.servedAds.find(a => a.type !== 'external')
-  if (internal) {
-    ad.value = internal
-    renderComponent.value = {
-      render: () => h('div', {}, [
-        internal.type === 'image' ? h('img', { src: internal.mediaUrl, alt: internal.altText }) :
-        internal.type === 'video' ? h('video', { controls: true, src: internal.mediaUrl }) :
-        internal.type === 'text' ? h('div', {}, [
-          h('h4', internal.headline),
-          h('p', internal.description),
-          h('button', { onClick: clickAd }, internal.cta)
-        ]) :
-        internal.type === 'audio' ? h('audio', { controls: true, src: internal.mediaUrl }) :
-        null
-      ])
-    }
+function clickAd() {
+  if (ad.value.type !== 'external') {
+    store.trackAd(ad.value.id, 'click')
+    window.open(ad.value.link, '_blank')
   }
 }
-
-function clickAd() {
-  store.trackAd(ad.value.id, 'click')
-  window.open(ad.value.link, '_blank')
-}
 </script>
+
+<style scoped>
+.ad-slot {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: #fff;
+}
+.promoted-label {
+  font-size: 0.75rem;
+  color: #888;
+}
+</style>
+
 
