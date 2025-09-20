@@ -1,6 +1,17 @@
-export default defineEventHandler(async () => {
-  const ads = await db.collection('ads').find().toArray()
+export default defineEventHandler(async (event) => {
+  const { region, device, startDate, endDate } = getQuery(event)
+
+  const ads = await db.collection('ads').find({
+    ...(region && { location: region }),
+    ...(device && { deviceTarget: device })
+  }).toArray()
+
+  const match: any = { adId: { $in: ads.map(a => a.id) } }
+  if (startDate) match.timestamp = { $gte: new Date(startDate).getTime() }
+  if (endDate) match.timestamp = { ...match.timestamp, $lte: new Date(endDate).getTime() }
+
   const metrics = await db.collection('adMetrics').aggregate([
+    { $match: match },
     { $group: {
       _id: '$adId',
       impressions: { $sum: { $cond: [{ $eq: ['$action', 'impression'] }, 1, 0] } },
