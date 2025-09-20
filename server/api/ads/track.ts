@@ -17,3 +17,4 @@ export default defineEventHandler(async (event) => {
   await db.collection('adMetrics').insertOne(entry)
   return { success: true }
 })
+
