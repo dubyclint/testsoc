@@ -1,0 +1,33 @@
+client/
+├── components/
+│   ├── PromotePostButton.vue
+│   ├── PromotedLabel.vue
+│   ├── AdSlot.vue
+│   ├── AdSubmissionForm.vue
+│   ├── AdPreviewSimulator.vue
+│   ├── AdPaymentPanel.vue
+│   └── AdminAdDashboard.vue
+pages/
+├── ads/
+│   ├── submit.vue
+│   └── manage.vue
+└── admin/
+    └── ad-control.vue
+server/
+└── api/
+    └── ads/
+        ├── promote.ts
+        ├── serve.ts
+        ├── track.ts
+        ├── submit.ts
+        ├── preview.ts
+        ├── validate.ts
+        ├── bulk-upload.ts
+        ├── external.ts
+        ├── approve.ts
+        ├── pricing.ts
+        ├── targeting.ts
+        ├── fraud-check.ts
+        ├── optimize.ts
+stores/
+└── ads.ts
