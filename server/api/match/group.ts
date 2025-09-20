@@ -2,25 +2,41 @@ import { computeMatchScore } from '~/server/utils/matchScore'
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user
-  const { size = 4, region, category } = getQuery(event)
+  const { size = 4, region, category, overrideGroup } = getQuery(event)
 
-  // Step 1: Fetch candidates excluding self
+  // Admin override: force group by IDs
+  if (overrideGroup) {
+    const ids = overrideGroup.split(',').map(id => id.trim())
+    const users = await db.collection('users').find({ _id: { $in: ids } }).toArray()
+
+    return [{
+      members: users.map(u => ({
+        id: u.id,
+        username: u.username,
+        avatar: u.avatar,
+        rank: u.rank,
+        isVerified: u.isVerified,
+        matchScore: computeMatchScore(user, u)
+      })),
+      groupScore: users.reduce((acc, u) => acc + computeMatchScore(user, u), 0),
+      override: true
+    }]
+  }
+
+  // Standard matching flow
   const allUsers = await db.collection('users').find({
     _id: { $ne: user.id },
     ...(region && { location: region }),
     ...(category && { tradeInterests: category })
   }).toArray()
 
-  // Step 2: Score candidates against current user
   const scored = allUsers.map(u => ({
     ...u,
     matchScore: computeMatchScore(user, u)
   })).filter(u => u.matchScore > 30)
 
-  // Step 3: Sort and select top candidates
   const topCandidates = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 30)
 
-  // Step 4: Form groups of [size] with mutual compatibility
   const groups = []
   while (topCandidates.length >= size - 1) {
     const seed = topCandidates.shift()
@@ -36,7 +52,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Step 5: Format response
   return groups.map(group => ({
     members: group.map(u => ({
       id: u.id,
@@ -54,3 +69,4 @@ export default defineEventHandler(async (event) => {
     }
   }))
 })
+
