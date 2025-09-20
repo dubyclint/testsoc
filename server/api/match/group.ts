@@ -4,19 +4,23 @@ export default defineEventHandler(async (event) => {
   const user = event.context.user
   const { size = 4, region, category } = getQuery(event)
 
+  // Step 1: Fetch candidates excluding self
   const allUsers = await db.collection('users').find({
     _id: { $ne: user.id },
     ...(region && { location: region }),
     ...(category && { tradeInterests: category })
   }).toArray()
 
+  // Step 2: Score candidates against current user
   const scored = allUsers.map(u => ({
     ...u,
     matchScore: computeMatchScore(user, u)
   })).filter(u => u.matchScore > 30)
 
+  // Step 3: Sort and select top candidates
   const topCandidates = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 30)
 
+  // Step 4: Form groups of [size] with mutual compatibility
   const groups = []
   while (topCandidates.length >= size - 1) {
     const seed = topCandidates.shift()
@@ -32,6 +36,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  // Step 5: Format response
   return groups.map(group => ({
     members: group.map(u => ({
       id: u.id,
@@ -41,6 +46,11 @@ export default defineEventHandler(async (event) => {
       isVerified: u.isVerified,
       matchScore: u.matchScore
     })),
-    groupScore: group.reduce((acc, u) => acc + u.matchScore, 0)
+    groupScore: group.reduce((acc, u) => acc + u.matchScore, 0),
+    filtersApplied: {
+      size: Number(size),
+      region: region || 'Any',
+      category: category || 'Any'
+    }
   }))
 })
