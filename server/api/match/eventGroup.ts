@@ -1,4 +1,5 @@
 import { computeMatchScore } from '~/server/utils/matchScore'
+import { sendNotification } from '~/server/utils/sendNotification'
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user
@@ -7,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const eventMeta = await db.collection('matchEvents').findOne({ id: eventId })
   if (!eventMeta) return []
 
-  const { region, category, size = 4, verifiedOnly } = eventMeta
+  const { region, category, size = 4, verifiedOnly, title } = eventMeta
 
   const allUsers = await db.collection('users').find({
     _id: { $ne: user.id },
@@ -35,6 +36,10 @@ export default defineEventHandler(async (event) => {
       groups.push([seed, ...compatible])
       topCandidates = topCandidates.filter(u => !compatible.includes(u))
     }
+  }
+
+  if (groups.length > 0) {
+    await sendNotification(user.id, 'group', `You’ve been matched for ${title}.`)
   }
 
   return groups.map(group => ({
