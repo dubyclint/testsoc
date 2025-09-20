@@ -42,12 +42,10 @@ onMounted(async () => {
     ad.value = candidates[0]
     shouldRender.value = true
 
-    // Track impression
     if (ad.value.type !== 'external') {
       store.trackAd(ad.value.id, 'impression')
     }
 
-    // Track A/B variant
     await fetch('/api/ads/track', {
       method: 'POST',
       body: JSON.stringify({
@@ -68,18 +66,3 @@ function clickAd() {
   }
 }
 </script>
-
-<style scoped>
-.ad-slot {
-  border: 1px solid #ddd;
-  padding: 1rem;
-  margin: 1rem 0;
-  background: #fff;
-}
-.promoted-label {
-  font-size: 0.75rem;
-  color: #888;
-}
-</style>
-
-
