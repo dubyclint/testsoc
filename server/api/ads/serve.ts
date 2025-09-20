@@ -30,10 +30,15 @@ export default defineEventHandler(async (event) => {
   }
 
   const allAds = [...internalAds, ...externalAds]
-  const filtered = allAds.filter(a => pageRules.find(p => p.name === page)?.allowed?.[a.type])
-  const sorted = filtered.sort((a, b) => (b.bid || 0) - (a.bid || 0))
+  const allowedAds = allAds.filter(ad =>
+    pageRules.find(p => p.name === page)?.allowed?.[ad.type]
+  )
 
-  // Rotation logic: pick one ad based on timestamp
-  const index = Math.floor(Date.now() / 10000) % sorted.length
+  const sorted = allowedAds.sort((a, b) => (b.bid || 0) - (a.bid || 0))
+
+  // Rotation index based on user ID hash (session-aware)
+  const hash = user?.id?.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) || Date.now()
+  const index = hash % sorted.length
+
   return [sorted[index]]
 })
