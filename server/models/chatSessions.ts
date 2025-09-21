@@ -6,9 +6,10 @@ export interface ChatSession {
   endedAt?: Date
   status: 'open' | 'closed' | 'escalated'
   messages: {
-    sender: 'user' | 'agent'
+    sender: 'user' | 'agent' | 'system'
     content: string
     timestamp: Date
   }[]
-  escalatedTo?: string // senior agent ID
+  escalatedTo?: string
 }
+
