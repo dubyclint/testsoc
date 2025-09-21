@@ -1,7 +1,8 @@
 export interface TranslationEntry {
-  key: string               // e.g. 'support.title', 'chat.send'
-  language: string          // e.g. 'en', 'fr', 'ha', 'zh'
-  value: string             // Translated string
+  key: string
+  language: string // e.g. 'en', 'fr', 'ha', 'zh'
+  value: string
   updatedAt: Date
-  updatedBy: string         // adminId
+  updatedBy: string
 }
+
