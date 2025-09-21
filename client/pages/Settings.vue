@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-panel">
+  <div class="settings-panel" :class="{ compact: isMobile }">
     <h2>⚙️ Settings Panel</h2>
 
     <section>
@@ -38,6 +38,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { isMobile } from '@/composables/useDevice'
 
 const userSettings = ref({
   language: 'en',
@@ -98,6 +99,11 @@ onMounted(fetchSettings)
 
 <style scoped>
 .settings-panel {
+  padding: 1.5rem;
+  max-width: 600px;
+  margin: auto;
+}
+.compact {
   padding: 1rem;
 }
 section {
@@ -110,5 +116,9 @@ label {
   display: block;
   margin-bottom: 0.5rem;
 }
+select, input[type="text"], input[type="checkbox"] {
+  font-size: 1rem;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+}
 </style>
-
