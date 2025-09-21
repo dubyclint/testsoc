@@ -1,5 +1,6 @@
 import { computeMatchScore } from '~/server/utils/matchScore'
 import { sendNotification } from '~/server/utils/sendNotification'
+import { sendPushAlert } from '~/server/utils/sendPushAlert'
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
 
   if (groups.length > 0) {
     await sendNotification(user.id, 'group', `You’ve been matched for ${title}.`)
+    await sendPushAlert(user.id, 'Group Match Ready', `You're matched for ${title}.`)
   }
 
   return groups.map(group => ({
