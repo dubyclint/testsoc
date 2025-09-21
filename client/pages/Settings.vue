@@ -12,12 +12,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { loadTranslations, t } from '@/composables/useI18n'
+import { ref, onMounted } from 'vue'
+import { loadTranslations, detectBrowserLanguage, detectIPLanguage, t } from '@/composables/useI18n'
 
 const lang = ref('en')
 
 function changeLang() {
   loadTranslations(lang.value)
 }
+
+onMounted(() => {
+  detectBrowserLanguage()
+  detectIPLanguage()
+})
 </script>
