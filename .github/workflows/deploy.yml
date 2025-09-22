@@ -1,11 +1,11 @@
-name: Deploy SocialVerse Web
+name: Fullstack Deploy (Frontend + Backend)
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build-and-deploy:
+  fullstack-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,8 +25,17 @@ jobs:
       - name: 📦 Install dependencies
         run: pnpm install
 
+      - name: 🧨 Run SQLite migrations
+        run: pnpx ts-node server/db/migrate.ts
+
       - name: 🏗 Build frontend
         run: pnpm build
+
+      - name: 🚀 Start GunDB peer
+        run: node gundb/server.js &
+
+      - name: 🚀 Start backend API
+        run: node server/index.js &
 
       - name: 🚀 Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -34,4 +43,8 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
+          working-directory: ./  # Optional: Trigger backend deploy via Render
+      # - name: 🔁 Trigger Render Deploy
+      #   run: curl -X POST https://api.render.com/deploy/srv-xxxxxx \
+      #        -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}
+          
