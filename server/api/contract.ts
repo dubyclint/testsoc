@@ -5,7 +5,7 @@ import abi from '../../scripts/abi.json'
 const router = express.Router()
 
 const client = new EthClient({
-  providerUrl: 'https://polygon-rpc.com',
+  providerUrl: process.env.PROVIDER_URL!,
   privateKey: process.env.PRIVATE_KEY!,
   contractAddress: process.env.CONTRACT_ADDRESS!,
   abi,
@@ -50,3 +50,4 @@ router.get('/listen', (req, res) => {
 })
 
 export default router
+
