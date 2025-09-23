@@ -8,6 +8,11 @@ jobs:
   fullstack-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      PROVIDER_URL: https://polygon-mainnet.infura.io/v3/${{ secrets.INFURA_PROJECT_ID }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      CONTRACT_ADDRESS: ${{ secrets.CONTRACT_ADDRESS }}
+
     steps:
       - name: 🔄 Checkout code
         uses: actions/checkout@v3
@@ -43,8 +48,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./  # Optional: Trigger backend deploy via Render
-      # - name: 🔁 Trigger Render Deploy
-      #   run: curl -X POST https://api.render.com/deploy/srv-xxxxxx \
-      #        -H 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}
-          
+          working-directory: ./
+
