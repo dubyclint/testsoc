@@ -29,4 +29,3 @@ router.post('/', verifyJWT, express.json(), (req, res) => {
 })
 
 export default router
-
