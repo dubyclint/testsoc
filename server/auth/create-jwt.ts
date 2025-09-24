@@ -15,3 +15,4 @@ const payload = {
 const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' })
 
 console.log('✅ JWT:', token)
+
