@@ -1,10 +1,10 @@
 import express from 'express'
 import { getSettings, saveSetting } from '../db/index'
+import { verifyJWT } from '../auth/verify-jwt'
 
 const router = express.Router()
 
-// GET /api/settings?scope=user
-router.get('/', (req, res) => {
+router.get('/', verifyJWT, (req, res) => {
   const scope = req.query.scope as string
   if (!scope) return res.status(400).json({ error: 'Missing scope' })
 
@@ -16,8 +16,7 @@ router.get('/', (req, res) => {
   }
 })
 
-// POST /api/settings
-router.post('/', express.json(), (req, res) => {
+router.post('/', verifyJWT, express.json(), (req, res) => {
   const { scope, key, value } = req.body
   if (!scope || !key) return res.status(400).json({ error: 'Missing scope or key' })
 
@@ -30,3 +29,4 @@ router.post('/', express.json(), (req, res) => {
 })
 
 export default router
+
