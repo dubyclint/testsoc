@@ -1,7 +1,7 @@
 {
   "name": "socialverse-web",
   "version": "1.0.0",
-  "description": "Fullstack socialverse app with Nuxt 3, Node.js, GunDB, and Ethereum integration",
+  "description": "Fullstack socialverse app with Nuxt 3, Node.js, GunDB, Ethereum, and PM2",
   "main": "server/index.js",
   "scripts": {
     "dev": "nuxt dev",
@@ -17,6 +17,7 @@
     "gun": "^0.2020.1237",
     "jsonwebtoken": "^9.0.2",
     "sqlite3": "^5.1.6",
+    "better-sqlite3": "^8.4.0",
     "ethers": "^6.10.0",
     "web3": "^4.0.3",
     "nuxt": "^3.10.0",
@@ -24,9 +25,11 @@
   },
   "devDependencies": {
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@types/better-sqlite3": "^7.4.0"
   },
   "engines": {
     "node": ">=18.0.0"
   }
 }
+
