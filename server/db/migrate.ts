@@ -18,4 +18,3 @@ db.exec(`
 `)
 
 console.log('✅ SQLite migration complete.')
-
