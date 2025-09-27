@@ -1,3 +1,6 @@
+# Node modules
+node_modules/
+
 # Environment files
 .env
 .env.production
@@ -7,3 +10,14 @@
 # RSA keys
 keys/private.pem
 keys/public.pem
+
+# SQLite DB
+/data/socialverse.db
+
+# Logs
+logs/
+*.log
+
+# Build artifacts
+dist/
+.cache/
