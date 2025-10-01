@@ -6,3 +6,4 @@
 import FeedPosts from '~/components/FeedPosts.vue'
 </script>
 
+
