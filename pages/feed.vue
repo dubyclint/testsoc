@@ -1,11 +1,8 @@
 <template>
-  <div>
-    <FeedPosts />
-    <AdSlot page="Home Feed" />
-  </div>
+  <FeedPosts />
 </template>
 
 <script setup>
-import FeedPosts from '@/components/FeedPosts.vue'
-import AdSlot from '@/components/AdSlot.vue'
+import FeedPosts from '~/components/FeedPosts.vue'
 </script>
+
