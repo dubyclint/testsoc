@@ -9,12 +9,12 @@ if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true })
 const db = new Database(dbPath)
 
 db.exec(`
-  CREATE TABLE IF NOT EXISTS settings (
-    scope TEXT NOT NULL,
-    key TEXT NOT NULL,
-    value TEXT,
-    PRIMARY KEY (scope, key)
+  CREATE TABLE IF NOT EXISTS posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL,
+    created_at INTEGER NOT NULL
   );
 `)
 
 console.log('✅ SQLite migration complete.')
+
