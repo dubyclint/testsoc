@@ -1,13 +1,10 @@
 import express from 'express'
-import authRoutes from './routes/auth'
-import adminRoutes from './routes/admin'
+import feedRoutes from './routes/feed'
 
 const app = express()
-app.use(express.json())
-app.use(authRoutes)
-app.use(adminRoutes)
+app.use(feedRoutes)
 
-const requiredEnv = ['INFURA_URL', 'ETH_PRIVATE_KEY', 'JWT_SECRET', 'SQLITE_DB_PATH', 'GUI_SECRET']
+const requiredEnv = ['SQLITE_DB_PATH']
 requiredEnv.forEach((key) => {
   if (!process.env[key]) throw new Error(`Missing env var: ${key}`)
 })
