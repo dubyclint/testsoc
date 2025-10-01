@@ -19,3 +19,4 @@ const posts = ref([
   padding: 1rem;
 }
 </style>
+
