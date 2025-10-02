@@ -1,15 +1,17 @@
+Dockerfile
 FROM node:20-alpine
+LABEL "language"="nodejs"
+LABEL "framework"="nuxt.js"
 
 WORKDIR /app
 
-COPY . .
-
+COPY package*.json ./
 RUN npm install
-RUN npm run build -- --verbose
+
+COPY . .
+RUN npm run build
 
 ENV NODE_ENV=production
-
 EXPOSE 3000
 
 CMD ["node", ".output/server/index.mjs"]
-
