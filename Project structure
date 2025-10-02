@@ -33,3 +33,27 @@ components/
 ├── trade/             # Trading components
 ├── ads/               # Advertisement components
 └── forms/             # Form components
+
+components/
+├── index.ts
+├── auth/
+│   ├── AuthForm.vue
+│   └── EditProfile.vue
+├── chat/
+│   ├── ChatBox.vue
+│   ├── ChatWindow.vue
+│   ├── GroupChat.vue
+│   └── CreateGroup.vue
+├── posts/
+│   ├── CreatePost.vue
+│   ├── FeedPosts.vue
+│   └── PostDetail.vue
+├── ui/
+│   ├── AdSlot.vue
+│   └── ExploreGrid.vue
+├── admin/
+│   ├── AdminPanel.vue
+│   └── AdminAdAnalytics.vue
+└── layout/
+    ├── Header.vue
+    └── Footer.vue
