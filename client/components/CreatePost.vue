@@ -71,7 +71,7 @@ async function submitPost() {
     gun.get('socialverse-feed').set({
       ...payload,
       timestamp: Date.now()
-    })
+    }); // ← Added semicolon here
 
     content.value = ''
     mediaFile.value = null
