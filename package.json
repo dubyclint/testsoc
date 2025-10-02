@@ -2,7 +2,7 @@
   "name": "socialverse-web",
   "version": "1.0.0",
   "private": true,
-  "description": "Nuxt 3 social platform with real-time sync, markdown, emoji, and media uploads",
+  "description": "Nuxt 3 social platform with Supabase SQL backend",
   "author": "Paul <paul@socialverse.dev>",
   "license": "MIT",
   "repository": {
@@ -20,7 +20,7 @@
     "markdown-it": "^13.0.1",
     "emojione": "^3.1.2",
     "gun": "^0.2020.1237",
-    "better-sqlite3": "^8.4.0"
+    "pg": "^8.11.1"
   },
   "devDependencies": {
     "@types/node": "^20.5.1",
@@ -28,4 +28,3 @@
     "@types/emojione": "^2.2.6"
   }
 }
-
