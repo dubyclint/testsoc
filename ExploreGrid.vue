@@ -34,14 +34,15 @@ import { ref, computed } from 'vue';
 
 const searchQuery = ref('');
 const selectedCategory = ref('All');
-const categories = ref(['All', 'Popular', 'Recent', 'Trending', 'Art', 'Tech', 'Music']);
 
-const exploreContent = ref([
+const categories = ['All', 'Users', 'Posts', 'Topics', 'Groups'];
+
+const mockContent = ref([
   {
     id: 1,
-    title: 'Amazing Sunset',
-    description: 'Beautiful sunset from last weekend',
-    image: 'https://via.placeholder.com/300x200',
+    title: 'Sample Post',
+    description: 'This is a sample post description',
+    image: 'https](streamdown:incomplete-link)
     likes: 142,
     comments: 23,
     category: 'Popular'
