@@ -1,8 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-const config = useRuntimeConfig();
+const config = useRuntimeConfig()
 
 export const supabase = createClient(
-  config.supabaseUrl,
-  config.supabaseKey
-);
+  config.public.supabaseUrl,
+  config.public.supabaseKey
+)
