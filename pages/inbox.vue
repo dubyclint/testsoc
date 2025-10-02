@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <UserInbox />
-  </div>
+  <UserInbox />
 </template>
 
 <script setup>
-import UserInbox from '@/components/UserInbox.vue'
+import UserInbox from '~/components/UserInbox.vue'
 </script>
