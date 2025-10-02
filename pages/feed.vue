@@ -1,9 +1,13 @@
-<template>
-  <FeedPosts />
-</template>
-
 <script setup>
-import FeedPosts from '~/components/FeedPosts.vue'
+import CreatePost from '~/components/CreatePost.vue';
+import FeedPosts from '~/components/FeedPosts.vue';
 </script>
+
+<template>
+  <div>
+    <CreatePost />
+    <FeedPosts />
+  </div>
+</template>
 
 
