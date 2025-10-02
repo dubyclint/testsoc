@@ -9,7 +9,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import gun from '@/composables/useGun'
+import gun from '~/useGun'
 
 const messages = ref([])
 const newMessage = ref('')
