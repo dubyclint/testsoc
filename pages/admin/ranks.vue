@@ -1,4 +1,4 @@
 <script setup>
-import RankAdminPanel from '@/components/RankAdminPanel.vue';
-definePageMeta({ middleware: ['admin-auth'] });
+import VerifiedBadgeAdmin from '@/components/VerifiedBadgeAdmin.vue';
+definePageMeta({ middleware: ['admin-auth'] }); // optional: restrict access
 </script>
