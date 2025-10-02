@@ -8,6 +8,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 const props = defineProps({ mode: String })
 const email = ref('')
 const password = ref('')
@@ -23,3 +25,4 @@ function handleSubmit() {
   // Call backend route based on mode
 }
 </script>
+
