@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
-    "lint": "eslint \"src/**/*.{js,ts,vue}\""
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
@@ -22,3 +21,4 @@
     "@types/emojione": "^2.2.6"
   }
 }
+
