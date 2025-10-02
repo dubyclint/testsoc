@@ -6,6 +6,6 @@
 </template>
 
 <script setup>
-import ExploreGrid from '@/components/ExploreGrid.vue'
-import AdSlot from '@/components/AdSlot.vue'
+import ExploreGrid from '@/components/ExploreGrid.vue';
+import AdSlot from '@/components/AdSlot.vue';
 </script>
