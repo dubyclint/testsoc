@@ -1,35 +1,23 @@
 {
   "name": "socialverse-web",
   "version": "1.0.0",
-  "description": "Hybrid feed with backend pagination, GunDB live sync, markdown rendering, and emoji support",
-  "main": "server/index.js",
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
     "start": "nuxt start",
-    "migrate": "ts-node server/db/migrate.ts",
-    "pm2-start": "pm2 start pm2.config.js && pm2 logs"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "gun": "^0.2020.1237",
-    "better-sqlite3": "^8.4.0",
-    "nuxt": "^3.19.2",
-    "pm2": "^5.3.0",
-    "markdown-it": "^13.0.1",
-    "emojione": "^4.5.0"
+    "lint": "eslint . --ext .ts,.vue",
+    "lint:fix": "eslint . --ext .ts,.vue --fix",
+    "format": "prettier --write ."
   },
   "devDependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
-  },
-  "engines": {
-    "node": "20.19.5"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dubyclint/socialverse-web.git"
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-unused-imports": "^3.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "prettier": "^3.0.0"
   }
 }
-
