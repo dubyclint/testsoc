@@ -9,7 +9,10 @@
       <h3>Received Messages</h3>
       <ul>
         <li v-for="msg in received" :key="msg.id">
+          <img :src="msg.avatar" class="avatar" v-if="msg.avatar" />
           <strong>{{ msg.from }}:</strong> {{ msg.text }}
+          <span class="timestamp">{{ formatTime(msg.timestamp) }}</span>
+          <span v-if="msg.read">✓ Read</span>
         </li>
       </ul>
     </div>
@@ -19,6 +22,7 @@
       <ul>
         <li v-for="msg in sent" :key="msg.id">
           <strong>To {{ msg.to }}:</strong> {{ msg.text }}
+          <span class="timestamp">{{ formatTime(msg.timestamp) }}</span>
         </li>
       </ul>
     </div>
@@ -32,47 +36,60 @@
 </template>
 
 <script setup>
-import { gun } from '~/gundb/client'
+import { gun, sea } from '~/gundb/client'
+import { useAuth } from '#imports'
 import { ref, onMounted } from 'vue'
+
+const { data: session } = useAuth()
+const currentUser = session.value?.user?.id || 'anonymous'
 
 const activeTab = ref('received')
 const received = ref([])
 const sent = ref([])
 const recipient = ref('')
 const message = ref('')
-const currentUser = 'paul' // Replace with dynamic user ID later
 
-function sendMessage() {
+function formatTime(ts) {
+  return new Date(ts).toLocaleString()
+}
+
+async function sendMessage() {
   const msg = {
     from: currentUser,
     to: recipient.value,
-    text: message.value,
-    timestamp: Date.now()
+    text: await sea.encrypt(message.value, await sea.secret(recipient.value, session.value.user)),
+    timestamp: Date.now(),
+    read: false
   }
 
-  // Send to recipient's inbox
   gun.get(`inbox/${recipient.value}`).set(msg)
-
-  // Store in sender's sent box
   gun.get(`sent/${currentUser}`).set(msg)
 
-  sent.value.unshift(msg)
+  sent.value.unshift({ ...msg, text: message.value })
   message.value = ''
   recipient.value = ''
 }
 
 onMounted(() => {
-  // Listen for received messages
-  gun.get(`inbox/${currentUser}`).map().on((data, key) => {
+  gun.get(`inbox/${currentUser}`).map().on(async (data, key) => {
     if (!received.value.find(m => m.timestamp === data.timestamp)) {
-      received.value.unshift({ id: key, ...data })
+      const decrypted = await sea.decrypt(data.text, await sea.secret(currentUser, session.value.user))
+      const profile = await gun.get(`users/${data.from}`).then()
+      received.value.unshift({
+        id: key,
+        ...data,
+        text: decrypted,
+        avatar: profile?.avatarUrl || null
+      })
+
+      gun.get(`inbox/${currentUser}/${key}`).put({ read: true })
     }
   })
 
-  // Load sent messages
-  gun.get(`sent/${currentUser}`).map().on((data, key) => {
+  gun.get(`sent/${currentUser}`).map().on(async (data, key) => {
     if (!sent.value.find(m => m.timestamp === data.timestamp)) {
-      sent.value.unshift({ id: key, ...data })
+      const decrypted = await sea.decrypt(data.text, await sea.secret(currentUser, session.value.user))
+      sent.value.unshift({ id: key, ...data, text: decrypted })
     }
   })
 })
@@ -100,6 +117,17 @@ onMounted(() => {
   list-style: none;
   padding: 0;
 }
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.timestamp {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 0.5rem;
+}
 .send-form {
   margin-top: 1rem;
 }
@@ -111,3 +139,4 @@ onMounted(() => {
   padding: 0.5rem;
 }
 </style>
+
