@@ -1,0 +1,30 @@
+From 1234567890abcdef1234567890abcdef12345678 Mon Sep 17 00:00:00 2001
+From: Paul <paul@socialverse.dev>
+Date: Thu, 2 Oct 2025 03:41:00 +0000
+Subject: fix: correct defineProps usage and import semicolons in GroupChat.vue
+
+---
+ components/GroupChat.vue | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/components/GroupChat.vue b/components/GroupChat.vue
+index abcdef1..1234567 100644
+--- a/components/GroupChat.vue
++++ b/components/GroupChat.vue
+@@ <script setup lang="ts">
+-import { ref, onMounted, computed } from 'vue'
+-import { useAuth } from '#imports'
+-import MarkdownIt from 'markdown-it'
+-import emojione from 'emojione'
+-import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client'
++import { ref, onMounted, computed } from 'vue';
++import { useAuth } from '#imports';
++import MarkdownIt from 'markdown-it';
++import emojione from 'emojione';
++import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client';
+
+ const md = new MarkdownIt({ breaks: true, linkify: true });
+
+-const props = defineProps<{ groupId: string }>
++const props = defineProps<{ groupId: string }>();
+ const groupId = props.groupId;
