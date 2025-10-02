@@ -1,23 +1,31 @@
 {
   "name": "socialverse-web",
   "version": "1.0.0",
+  "private": true,
+  "description": "Nuxt 3 social platform with real-time sync, markdown, emoji, and media uploads",
+  "author": "Paul <paul@socialverse.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paul/socialverse-web.git"
+  },
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
-    "start": "nuxt start",
-    "lint": "eslint . --ext .ts,.vue",
-    "lint:fix": "eslint . --ext .ts,.vue --fix",
-    "format": "prettier --write ."
+    "start": "nuxt start"
+  },
+  "dependencies": {
+    "nuxt": "^3.10.0",
+    "vue": "^3.4.0",
+    "markdown-it": "^13.0.1",
+    "emojione": "^3.1.2",
+    "gun": "^0.2020.1237",
+    "better-sqlite3": "^8.4.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-unused-imports": "^3.1.0",
-    "eslint-plugin-vue": "^9.0.0",
-    "prettier": "^3.0.0"
+    "@types/node": "^20.5.1",
+    "@types/markdown-it": "^12.2.3",
+    "@types/emojione": "^2.2.6"
   }
 }
+
