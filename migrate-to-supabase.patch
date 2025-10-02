@@ -14,7 +14,7 @@ index abcdef1..1234567 100644
 --- a/.env.local
 +++ b/.env.local
 @@
-+DATABASE_URL=postgresql://postgres.cvzrhucbvezqwbesthek:[YOUR-PASSWORD]@aws-1-us-east-2.pooler.supabase.com:6543/postgres
++DATABASE_URL=postgresql://postgres.cvzrhucbvezqwbesthek:[March12@--==]@aws-1-us-east-2.pooler.supabase.com:6543/postgres
 
 diff --git a/src/server/db.ts b/src/server/db.ts
 index 1234567..89abcde 100644
