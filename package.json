@@ -13,7 +13,8 @@
     "pg": "^8.11.1",
     "markdown-it": "^13.0.1",
     "emojione": "^3.1.2",
-    "gun": "^0.2020.1237"
+    "gun": "^0.2020.1237",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@types/node": "^20.5.1",
@@ -21,4 +22,5 @@
     "@types/emojione": "^2.2.6"
   }
 }
+
 
