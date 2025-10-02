@@ -23,3 +23,13 @@ socialverse-web/
 ├── .env.example                # Updated env vars
 ├── .gitignore                  # Updated ignore rules
 └── package.json                # Node 20.19.5 + better-sqlite3
+missing component directory structure
+components/
+├── ui/                 # Basic UI components
+├── auth/              # Authentication components
+├── chat/              # Chat-related components
+├── posts/             # Post-related components
+├── admin/             # Admin components
+├── trade/             # Trading components
+├── ads/               # Advertisement components
+└── forms/             # Form components
