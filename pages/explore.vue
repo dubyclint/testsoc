@@ -1,6 +1,6 @@
 <script setup>
-import ExploreGrid from '~/components/ui/ExploreGrid.vue'
-import AdSlot from '~/components/ui/AdSlot.vue'
+import ExploreGrid from '~/components/ui/ExploreGrid.vue';
+import AdSlot from '~/components/ui/AdSlot.vue';
 </script>
 
 <template>
