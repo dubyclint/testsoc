@@ -10,7 +10,7 @@ COPY . .
 # Install dependencies
 RUN npm install
 
-# Build Nuxt for production (generates .output and nitro.json)
+# Build Nuxt for production
 RUN npm run build
 
 # Set environment to production
@@ -20,4 +20,5 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Start Nuxt server
-CMD ["npm", "run", "start"]
+CMD ["node", ".output/server/index.mjs"]
+
