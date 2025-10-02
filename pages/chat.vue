@@ -1,7 +1,7 @@
+<script setup>
+import ChatWindow from '~/components/chat/ChatWindow.vue'
+</script>
+
 <template>
   <ChatWindow />
 </template>
-
-<script setup>
-import ChatWindow from '~/components/ChatWindow.vue';
-</script>
