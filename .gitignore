@@ -11,8 +11,10 @@ node_modules/
 keys/private.pem
 keys/public.pem
 
-# SQLite DB
-/data/socialverse.db
+# Supabase migration cleanup
+data.db
+*.sqlite
+
 
 # Logs
 logs/
