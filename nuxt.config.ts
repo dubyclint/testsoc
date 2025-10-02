@@ -1,7 +1,8 @@
+import eslintPlugin from 'vite-plugin-eslint';
+
 export default defineNuxtConfig({
-  runtimeConfig: {
-    public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE
-    }
-  }
-})
+  vite: {
+    plugins: [eslintPlugin()]
+  },
+  modules: ['@nuxtjs/eslint-module']
+});
