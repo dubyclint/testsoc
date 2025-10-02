@@ -1,0 +1,69 @@
+From 9f1e2d3a4b5c6d7e8f90123456789abcdeffedcb Mon Sep 17 00:00:00 2001
+From: Paul <paul@socialverse.dev>
+Date: Thu, 2 Oct 2025 04:13:00 +0000
+Subject: fix: apply ESLint-standard syntax and safety across components
+
+---
+ components/AdminPanel.vue   |  4 ++--
+ components/CreateGroup.vue  |  4 ++--
+ components/EditProfile.vue  |  4 ++--
+ components/GroupChat.vue    | 10 +++++-----
+ 4 files changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/components/AdminPanel.vue b/components/AdminPanel.vue
+index a1b2c3d..e4f5g6h 100644
+--- a/components/AdminPanel.vue
++++ b/components/AdminPanel.vue
+@@ <script setup>
+-import { ref, computed } from 'vue'
+-import { useAuth } from '#imports'
+-import { gun } from '~/gundb/client'
++import { ref, computed } from 'vue';
++import { useAuth } from '#imports';
++import { gun } from '~/gundb/client';
+
+diff --git a/components/CreateGroup.vue b/components/CreateGroup.vue
+index a1b2c3d..e4f5g6h 100644
+--- a/components/CreateGroup.vue
++++ b/components/CreateGroup.vue
+@@ <script setup>
+-import { ref } from 'vue'
+-import { useAuth } from '#imports'
+-import { gun, sea, ensureUserPair } from '~/gundb/client'
++import { ref } from 'vue';
++import { useAuth } from '#imports';
++import { gun, sea, ensureUserPair } from '~/gundb/client';
+
+diff --git a/components/EditProfile.vue b/components/EditProfile.vue
+index a1b2c3d..e4f5g6h 100644
+--- a/components/EditProfile.vue
++++ b/components/EditProfile.vue
+@@ <script setup>
+-import { ref, onMounted } from 'vue'
+-import { useAuth } from '#imports'
+-import { gun } from '~/gundb/client'
++import { ref, onMounted } from 'vue';
++import { useAuth } from '#imports';
++import { gun } from '~/gundb/client';
+
+diff --git a/components/GroupChat.vue b/components/GroupChat.vue
+index a1b2c3d..e4f5g6h 100644
+--- a/components/GroupChat.vue
++++ b/components/GroupChat.vue
+@@ <script setup lang="ts">
+-import { ref, onMounted, computed } from 'vue'
+-import { useAuth } from '#imports'
+-import MarkdownIt from 'markdown-it'
+-import emojione from 'emojione'
+-import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client'
++import { ref, onMounted, computed } from 'vue';
++import { useAuth } from '#imports';
++import MarkdownIt from 'markdown-it';
++import emojione from 'emojione';
++import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client';
+
+ const md = new MarkdownIt({ breaks: true, linkify: true });
+
+-const props = defineProps<{ groupId: string }>
++const props = defineProps<{ groupId: string }>();
+ const groupId = props.groupId;
