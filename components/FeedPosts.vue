@@ -1,7 +1,6 @@
 <template>
   <div class="feed-posts">
-    <!-- Temporarily comment out CreatePost until you create it -->
-    <!-- <CreatePost /> -->
+    <CreatePost />
     <h2>Latest Posts</h2>
     <ul>
       <li v-for="post in posts" :key="post.id">
@@ -13,38 +12,39 @@
 </template>
 
 <script setup>
-import { gun } from '~/gundb/client';
-// import CreatePost from '~/components/CreatePost.vue'; // Comment out until component exists
-import MarkdownIt from 'markdown-it';
-import emojione from 'emojione';
+import { ref, onMounted } from 'vue'
+import { gun } from '~/gundb/client'
+import CreatePost from '~/components/CreatePost.vue'
+import MarkdownIt from 'markdown-it'
+import emojione from 'emojione'
 
-const md = new MarkdownIt();
-const posts = ref([]);
-const page = ref(1);
+const md = new MarkdownIt()
+const posts = ref([])
+const page = ref(1)
 
 function renderPost(content) {
-  const markdown = md.render(content);
-  return emojione.shortnameToImage(markdown);
+  const markdown = md.render(content)
+  return emojione.shortnameToImage(markdown)
 }
 
 async function fetchPage() {
-  const { data } = await useFetch(`/api/posts?page=${page.value}`);
-  if (data.value) posts.value.push(...data.value);
+  const { data } = await useFetch(`/api/posts?page=${page.value}`)
+  if (data.value) posts.value.push(...data.value)
 }
 
 function loadMore() {
-  page.value++;
-  fetchPage();
+  page.value++
+  fetchPage()
 }
 
 onMounted(() => {
-  fetchPage();
+  fetchPage()
   gun.get('socialverse-feed').map().on((data, key) => {
     if (!posts.value.find(p => p.id === key)) {
-      posts.value.unshift({ id: key, ...data }); // Added missing semicolon
+      posts.value.unshift({ id: key, ...data })
     }
-  });
-});
+  })
+})
 </script>
 
 <style scoped>
@@ -57,3 +57,4 @@ onMounted(() => {
   vertical-align: middle;
 }
 </style>
+
