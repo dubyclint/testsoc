@@ -1,8 +1,11 @@
 <template>
   <div class="feed-posts">
+    <CreatePost />
     <h2>Latest Posts</h2>
     <ul>
-      <li v-for="post in posts" :key="post.id">{{ post.content }}</li>
+      <li v-for="post in posts" :key="post.id">
+        <div v-html="renderPost(post.content)" class="post-content" />
+      </li>
     </ul>
     <button @click="loadMore">Load More</button>
   </div>
@@ -10,8 +13,18 @@
 
 <script setup>
 import { gun } from '~/gundb/client'
+import CreatePost from '~/components/CreatePost.vue'
+import MarkdownIt from 'markdown-it'
+import emojione from 'emojione'
+
+const md = new MarkdownIt()
 const posts = ref([])
 const page = ref(1)
+
+function renderPost(content) {
+  const markdown = md.render(content)
+  return emojione.shortnameToImage(markdown)
+}
 
 async function fetchPage() {
   const { data } = await useFetch(`/api/posts?page=${page.value}`)
@@ -36,6 +49,11 @@ onMounted(() => {
 <style scoped>
 .feed-posts {
   padding: 1rem;
+}
+.post-content img.emoji {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
 }
 </style>
 
