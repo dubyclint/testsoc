@@ -2,13 +2,17 @@
   "name": "socialverse-web",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
+    "db:migrate": "node database/setup.js",
+    "db:seed": "node database/seed.js",
+    "db:reset": "echo 'Use Supabase dashboard to reset database'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -25,7 +29,8 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
     "markdown-it": "^14.0.0",
-    "emojione": "^4.5.0"
+    "emojione": "^4.5.0",
+    "undici": "^6.2.1"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.0.0",
@@ -39,4 +44,5 @@
     "node": ">=18.0.0"
   }
 }
+
 
