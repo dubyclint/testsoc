@@ -1,21 +1,22 @@
-FROM node:22-alpine AS base
+FROM node:22-alpine AS builder
 LABEL "language"="nodejs"
 LABEL "framework"="nuxt.js"
 
-# Install system dependencies
+# Install system dependencies for build
 RUN apk add --no-cache \
     python3 \
     make \
     g++ \
-    git
+    git \
+    curl
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files for dependency installation
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --omit=dev --legacy-peer-deps
+# Install ALL dependencies (including devDependencies for build)
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -27,8 +28,8 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 # Clean any existing build artifacts
 RUN rm -rf .nuxt .output dist
 
-# Ensure required directories exist
-RUN mkdir -p assets/css database && \
+# Ensure required directories and files exist
+RUN mkdir -p assets/css database scripts && \
     if [ ! -f assets/css/main.css ]; then \
         echo "/* Main stylesheet */" > assets/css/main.css; \
     fi
@@ -36,42 +37,50 @@ RUN mkdir -p assets/css database && \
 # Build the application
 RUN npm run build
 
-# Verify the build output exists
-RUN ls -la .output/server/ && \
-    if [ ! -f .output/server/index.mjs ]; then \
-        echo "ERROR: .output/server/index.mjs not found after build" && \
-        ls -la .output/ && \
-        exit 1; \
-    fi
+# Verify build output using our custom script
+RUN npm run verify
 
 # Production stage
 FROM node:22-alpine AS production
 
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    dumb-init \
+    curl
+
 WORKDIR /app
 
-# Copy built application
-COPY --from=base /app/.output /app/.output
-COPY --from=base /app/package.json /app/package.json
+# Copy built application from builder stage
+COPY --from=builder /app/.output /app/.output
+COPY --from=builder /app/package.json /app/package.json
 
-# Create non-root user
+# Double-check that server file exists in production stage
+RUN ls -la .output/server/ && \
+    test -f .output/server/index.mjs || (echo "ERROR: Server file missing in production stage" && exit 1)
+
+# Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nuxt -u 1001
+    adduser -S nuxt -u 1001 -G nodejs
 
-# Change ownership
+# Set correct ownership
 RUN chown -R nuxt:nodejs /app
 USER nuxt
 
 # Expose port
 EXPOSE 3000
 
-# Set environment variables
+# Set production environment variables
 ENV NODE_ENV=production
 ENV NUXT_HOST=0.0.0.0
 ENV NUXT_PORT=3000
+ENV PORT=3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+# Health check with proper endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
 
 # Start the application
 CMD ["node", ".output/server/index.mjs"]
