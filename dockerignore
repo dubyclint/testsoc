@@ -1,0 +1,74 @@
+# Node modules and build outputs
+node_modules
+.nuxt
+.output
+dist
+
+# Environment files
+.env
+.env.local
+.env.example
+
+# Git files
+.git
+.gitignore
+
+# Legacy/conflicting database files
+server.js
+server/index.ts
+server/routes/
+server/models/
+server/controllers/
+walletController.js
+*Controller.js
+*Routes.js
+pm2.config.js
+escrowController.js
+escrowRoutes.js
+escrowTradeController.js
+escrowTradeRoutes.js
+giftController.js
+giftRoutes.js
+matchController.js
+matchRoutes.js
+notificationController.js
+notificationRoutes.js
+p2pController.js
+p2pRoutes.js
+palController.js
+palRoutes.js
+pewController.js
+pewGiftController.js
+pewGiftRoutes.js
+pewRoutes.js
+postController.js
+postRoutes.js
+swapController.js
+swapRoutes.js
+tradeController.js
+tradeRoutes.js
+universeController.js
+universeRoutes.js
+walletRoutes.js
+dashboardAdminController.js
+escrowContractController.js
+pushEngine.js
+
+# Database files
+*.db
+*.sqlite
+data/
+
+# Development and documentation files
+README.md
+*.md
+.vscode/
+.idea/
+
+# Log files
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+Thumbs.db
