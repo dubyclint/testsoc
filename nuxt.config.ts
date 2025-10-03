@@ -15,12 +15,12 @@ export default defineNuxtConfig({
     typeCheck: false
   },
   
-  // Build configuration with polyfills
+  // Build configuration
   build: {
-    transpile: []
+    transpile: ['@supabase/supabase-js']
   },
   
-  // Vite configuration with polyfills
+  // Vite configuration
   vite: {
     esbuild: {
       target: 'es2020'
@@ -33,8 +33,9 @@ export default defineNuxtConfig({
     }
   },
   
-  // Nitro configuration for serverless functions
+  // Nitro configuration - THIS IS KEY for fixing the build issue
   nitro: {
+    preset: 'node-server',
     experimental: {
       wasm: true
     },
@@ -42,6 +43,14 @@ export default defineNuxtConfig({
       options: {
         target: 'es2020'
       }
+    },
+    minify: false,
+    sourceMap: false,
+    // Ensure proper server output
+    output: {
+      dir: '.output',
+      serverDir: '.output/server',
+      publicDir: '.output/public'
     }
   },
   
