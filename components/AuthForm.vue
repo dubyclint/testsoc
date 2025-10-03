@@ -8,21 +8,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue';
 
-const props = defineProps({ mode: String })
-const email = ref('')
-const password = ref('')
-const needsPassword = ['signup', 'signin', 'admin'].includes(props.mode)
-const buttonLabel = {
+const props = defineProps({ mode: String });
+const email = ref('');
+const password = ref('');
+
+const needsPassword = computed(() => ['signup', 'signin', 'admin'].includes(props.mode));
+const buttonLabel = computed(() => ({
   signup: 'Create Account',
   signin: 'Sign In',
   recover: 'Send Recovery Link',
   admin: 'Admin Login'
-}[props.mode]
+}[props.mode]));
 
 function handleSubmit() {
   // Call backend route based on mode
 }
 </script>
+
 
