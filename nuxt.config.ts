@@ -1,10 +1,42 @@
 export default defineNuxtConfig({
-  modules: [],
+  devtools: { enabled: true },
+  
+  // TypeScript configuration
+  typescript: {
+    strict: false,
+    typeCheck: false
+  },
+  
+  // CSS framework
+  css: ['~/assets/css/main.css'],
+  
+  // Build configuration
+  build: {
+    transpile: []
+  },
+  
+  // Vite configuration
+  vite: {
+    esbuild: {
+      target: 'es2020'
+    }
+  },
+  
+  // Runtime configuration
   runtimeConfig: {
+    // Private keys (only available on server-side)
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+    
+    // Public keys (exposed to client-side)
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY
     }
-  }
+  },
+  
+  // Modules
+  modules: [
+    '@nuxtjs/supabase'
+  ]
 });
 
