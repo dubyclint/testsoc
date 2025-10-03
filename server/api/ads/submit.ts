@@ -1,8 +1,28 @@
+import { supabase } from '~/server/utils/database';
+
 export default defineEventHandler(async (event) => {
-  const ad = await readBody(event)
-  ad.status = 'pending'
-  ad.createdAt = Date.now()
-  ad.ownerId = event.context.user.id
-  await db.collection('ads').insertOne(ad)
-  return { success: true }
-})
+  try {
+    const ad = await readBody(event);
+    
+    const adData = {
+      ...ad,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      owner_id: event.context.user.id
+    };
+
+    const { error } = await supabase
+      .from('ads')
+      .insert(adData);
+      
+    if (error) throw error;
+
+    return { success: true };
+  } catch (err) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to submit ad'
+    });
+  }
+});
+
