@@ -1,3 +1,4 @@
+import { supabase } from "~/server/utils/database"
 import { computeMatchScore } from '~/server/utils/matchScore'
 
 export default defineEventHandler(async (event) => {
@@ -7,35 +8,47 @@ export default defineEventHandler(async (event) => {
   // Admin override: force group by IDs
   if (overrideGroup) {
     const ids = overrideGroup.split(',').map(id => id.trim())
-    const users = await db.collection('users').find({ _id: { $in: ids } }).toArray()
+    const { data: users } = await supabase
+      .from('users')
+      .select('*')
+      .in('id', ids)
 
     return [{
-      members: users.map(u => ({
+      members: users?.map(u => ({
         id: u.id,
         username: u.username,
         avatar: u.avatar,
         rank: u.rank,
         isVerified: u.isVerified,
         matchScore: computeMatchScore(user, u)
-      })),
-      groupScore: users.reduce((acc, u) => acc + computeMatchScore(user, u), 0),
+      })) || [],
+      groupScore: users?.reduce((acc, u) => acc + computeMatchScore(user, u), 0) || 0,
       override: true
     }]
   }
 
   // Standard matching flow
-  const allUsers = await db.collection('users').find({
-    _id: { $ne: user.id },
-    ...(region && { location: region }),
-    ...(category && { tradeInterests: category })
-  }).toArray()
+  let query = supabase
+    .from('users')
+    .select('*')
+    .neq('id', user.id)
 
-  const scored = allUsers.map(u => ({
+  if (region) {
+    query = query.eq('location', region)
+  }
+  
+  if (category) {
+    query = query.contains('trade_interests', [category])
+  }
+
+  const { data: allUsers } = await query
+
+  const scored = allUsers?.map(u => ({
     ...u,
     matchScore: computeMatchScore(user, u)
-  })).filter(u => u.matchScore > 30)
+  })).filter(u => u.matchScore > 30) || []
 
-  const topCandidates = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 30)
+  let topCandidates = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 30)
 
   const groups = []
   while (topCandidates.length >= size - 1) {
@@ -69,4 +82,3 @@ export default defineEventHandler(async (event) => {
     }
   }))
 })
-
