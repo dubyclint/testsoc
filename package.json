@@ -8,10 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start": "node .output/server/index.mjs",
-    "start:pm2": "pm2 start pm2.config.js",
-    "stop:pm2": "pm2 stop all",
-    "restart:pm2": "pm2 restart all"
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -21,33 +18,22 @@
     "vue-router": "^4.2.0",
     "pinia": "^2.1.7",
     "@pinia/nuxt": "^0.5.1",
-    "express": "^4.18.2",
-    "mongoose": "^8.0.3",
-    "better-sqlite3": "^9.2.2",
-    "cors": "^2.8.5",
     "gun": "^0.2020.1240",
     "axios": "^1.6.2",
     "ethers": "^5.7.2",
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
-    "dotenv": "^16.3.1",
-    "pm2": "^5.3.0",
-    "markdown-it": "^14.0.0"
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.0.0",
     "@types/node": "^20.10.0",
-    "@types/express": "^4.17.21",
-    "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/bcryptjs": "^2.4.6",
-    "@types/better-sqlite3": "^7.6.8",
-    "@types/markdown-it": "^13.0.7",
     "typescript": "^5.3.0"
   },
   "engines": {
     "node": ">=18.0.0"
   }
 }
-
 
