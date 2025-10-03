@@ -7,8 +7,8 @@ export default defineNuxtConfig({
     typeCheck: false
   },
   
-  // CSS framework
-  css: ['~/assets/css/main.css'],
+  // CSS framework (only if the file exists)
+  css: [],
   
   // Build configuration
   build: {
@@ -25,15 +25,14 @@ export default defineNuxtConfig({
   // Runtime configuration
   runtimeConfig: {
     // Private keys (only available on server-side)
-    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || '',
     
     // Public keys (exposed to client-side)
     public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseAnonKey: process.env.SUPABASE_ANON_KEY
+      supabaseUrl: process.env.SUPABASE_URL || '',
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
     }
   }
-  
-  // No modules section - handling Supabase manually
 });
+
 
