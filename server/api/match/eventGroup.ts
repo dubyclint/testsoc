@@ -1,3 +1,4 @@
+import { supabase } from "~/server/utils/database"
 import { computeMatchScore } from '~/server/utils/matchScore'
 import { sendNotification } from '~/server/utils/sendNotification'
 import { sendPushAlert } from '~/server/utils/sendPushAlert'
@@ -6,24 +7,41 @@ export default defineEventHandler(async (event) => {
   const user = event.context.user
   const { eventId } = getQuery(event)
 
-  const eventMeta = await db.collection('matchEvents').findOne({ id: eventId })
+  const { data: eventMeta } = await supabase
+    .from('match_events')
+    .select('*')
+    .eq('id', eventId)
+    .single()
+
   if (!eventMeta) return []
 
-  const { region, category, size = 4, verifiedOnly, title } = eventMeta
+  const { region, category, size = 4, verified_only: verifiedOnly, title } = eventMeta
 
-  const allUsers = await db.collection('users').find({
-    _id: { $ne: user.id },
-    ...(region && { location: region }),
-    ...(category && { tradeInterests: category }),
-    ...(verifiedOnly && { isVerified: true })
-  }).toArray()
+  let query = supabase
+    .from('users')
+    .select('*')
+    .neq('id', user.id)
 
-  const scored = allUsers.map(u => ({
+  if (region) {
+    query = query.eq('location', region)
+  }
+  
+  if (category) {
+    query = query.contains('trade_interests', [category])
+  }
+
+  if (verifiedOnly) {
+    query = query.eq('is_verified', true)
+  }
+
+  const { data: allUsers } = await query
+
+  const scored = allUsers?.map(u => ({
     ...u,
     matchScore: computeMatchScore(user, u)
-  })).filter(u => u.matchScore > 30)
+  })).filter(u => u.matchScore > 30) || []
 
-  const topCandidates = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 30)
+  let topCandidates = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 30)
 
   const groups = []
   while (topCandidates.length >= size - 1) {
@@ -40,7 +58,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (groups.length > 0) {
-    await sendNotification(user.id, 'group', `You’ve been matched for ${title}.`)
+    await sendNotification(user.id, 'group', `You've been matched for ${title}.`)
     await sendPushAlert(user.id, 'Group Match Ready', `You're matched for ${title}.`)
   }
 
@@ -57,3 +75,4 @@ export default defineEventHandler(async (event) => {
     groupScore: group.reduce((acc, u) => acc + u.matchScore, 0)
   }))
 })
+
