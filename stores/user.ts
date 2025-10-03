@@ -1,76 +1,129 @@
 import { defineStore } from 'pinia';
+import { supabase } from '~/utils/supabase';
+import type { User } from '@supabase/supabase-js';
+
+interface UserProfile {
+  id: string;
+  email: string;
+  username?: string;
+  role?: 'admin' | 'buyer' | 'seller' | 'user';
+  is_verified?: boolean;
+  rank?: string;
+  rank_points?: number;
+  avatar_url?: string;
+}
 
 interface UserState {
-  userId: string | null;
-  email: string | null;
-  username: string | null;
-  role: 'admin' | 'buyer' | 'seller' | 'user' | null;
-  isVerified: boolean;
-  rank: string | null;
-  rankPoints: number;
+  user: User | null;
+  profile: UserProfile | null;
   isAuthenticated: boolean;
   loading: boolean;
 }
 
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
-    userId: null,
-    email: null,
-    username: null,
-    role: null,
-    isVerified: false,
-    rank: null,
-    rankPoints: 0,
+    user: null,
+    profile: null,
     isAuthenticated: false,
     loading: false
   }),
 
   getters: {
-    isAdmin: (state) => state.role === 'admin',
-    isSeller: (state) => state.role === 'seller',
-    isBuyer: (state) => state.role === 'buyer',
-    displayName: (state) => state.username || state.email || 'Anonymous'
+    isAdmin: (state) => state.profile?.role === 'admin',
+    isSeller: (state) => state.profile?.role === 'seller',
+    isBuyer: (state) => state.profile?.role === 'buyer',
+    isVerified: (state) => state.profile?.is_verified || false,
+    displayName: (state) => state.profile?.username || state.user?.email || 'Anonymous',
+    rankPoints: (state) => state.profile?.rank_points || 0,
+    currentRank: (state) => state.profile?.rank || null
   },
 
   actions: {
-    setUser(user: {
-      id: string;
-      email: string;
-      username?: string;
-      role?: string;
-      isVerified?: boolean;
-      rank?: string;
-      rankPoints?: number;
-    }) {
-      this.userId = user.id;
-      this.email = user.email;
-      this.username = user.username || null;
-      this.role = user.role as UserState['role'] || 'user';
-      this.isVerified = user.isVerified || false;
-      this.rank = user.rank || 'Homie';
-      this.rankPoints = user.rankPoints || 0;
-      this.isAuthenticated = true;
+    async setUser(user: User | null) {
+      this.user = user;
+      this.isAuthenticated = !!user;
+      
+      if (user) {
+        await this.fetchProfile();
+      } else {
+        this.profile = null;
+      }
     },
 
-    clearUser() {
-      this.userId = null;
-      this.email = null;
-      this.username = null;
-      this.role = null;
-      this.isVerified = false;
-      this.rank = null;
-      this.rankPoints = 0;
+    async fetchProfile() {
+      if (!this.user) return;
+      
+      this.loading = true;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', this.user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
+
+        this.profile = data || {
+          id: this.user.id,
+          email: this.user.email!,
+          role: 'user'
+        };
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async updateProfile(updates: Partial<UserProfile>) {
+      if (!this.user) return;
+
+      this.loading = true;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: this.user.id,
+            ...this.profile,
+            ...updates,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        
+        this.profile = data;
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async signOut() {
+      await supabase.auth.signOut();
+      this.user = null;
+      this.profile = null;
       this.isAuthenticated = false;
     },
 
-    setLoading(loading: boolean) {
-      this.loading = loading;
-    },
+    async initialize() {
+      // Get initial session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await this.setUser(session.user);
+      }
 
-    updateRank(newRank: string, newPoints: number) {
-      this.rank = newRank;
-      this.rankPoints = newPoints;
+      // Listen for auth changes
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        await this.setUser(session?.user || null);
+      });
     }
   }
 });
+
 
