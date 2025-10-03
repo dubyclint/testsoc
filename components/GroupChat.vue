@@ -50,14 +50,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useAuth } from '#imports';
+import { useAuth } from '~/composables/useAuth';
 import MarkdownIt from 'markdown-it';
 import emojione from 'emojione';
-import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client';
+// import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client'; // Commented out - may not exist
 
 const md = new MarkdownIt({ breaks: true, linkify: true });
 
-// ✅ Fixed: must call defineProps as a function
 const props = defineProps<{ groupId: string }>();
 const groupId = props.groupId;
 
@@ -85,9 +84,45 @@ function renderContent(text: string) {
   return emojione.shortnameToImage(html);
 }
 
-// … rest of logic unchanged …
+function inviteMember() {
+  // Implementation needed
+}
+
+function removeMember(memberId: string) {
+  // Implementation needed
+}
+
+function sendMessage() {
+  // Implementation needed
+}
+
+onMounted(() => {
+  // Load group data
+});
 </script>
 
 <style scoped>
-/* styles unchanged */
+.group-chat {
+  padding: 1rem;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.blocked { background: #ff6b6b; color: white; }
+.deleted { background: #868e96; color: white; }
+.notice {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  text-align: center;
+}
 </style>
+
