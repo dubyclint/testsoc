@@ -10,9 +10,10 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "start": "node .output/server/index.mjs",
+    "start:production": "NODE_ENV=production node .output/server/index.mjs",
+    "clean": "rm -rf .nuxt .output dist node_modules/.cache",
     "db:migrate": "node database/setup.js",
-    "db:seed": "node database/seed.js",
-    "db:reset": "echo 'Use Supabase dashboard to reset database'"
+    "db:seed": "node database/seed.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -30,7 +31,9 @@
     "dotenv": "^16.3.1",
     "markdown-it": "^14.0.0",
     "emojione": "^4.5.0",
-    "undici": "^6.2.1"
+    "undici": "^6.2.1",
+    "h3": "^1.10.0",
+    "nitropack": "^2.8.1"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.0.0",
@@ -44,5 +47,6 @@
     "node": ">=18.0.0"
   }
 }
+
 
 
