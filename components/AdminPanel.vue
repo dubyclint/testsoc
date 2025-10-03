@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { gun } from '~/gundb/client'
+import { ref, computed } from 'vue';
+// import { gun } from '~/gundb/client'; // Commented out - may not exist
 
-const users = ref([])
-const posts = ref([])
+const users = ref([]);
+const posts = ref([]);
 
 // Admin functionality will be implemented here
 </script>
@@ -40,3 +40,4 @@ section {
   border-radius: 8px;
 }
 </style>
+
