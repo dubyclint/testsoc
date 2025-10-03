@@ -2,22 +2,31 @@ FROM node:22-alpine
 LABEL "language"="nodejs"
 LABEL "framework"="nuxt.js"
 
+# Install system dependencies
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++
+
 WORKDIR /app
 
 # Copy package files first for better Docker layer caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with legacy peer deps to avoid conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy all project files
 COPY . .
 
 # Ensure required directories exist
-RUN mkdir -p assets/css && \
+RUN mkdir -p assets/css database && \
     if [ ! -f assets/css/main.css ]; then \
         echo "/* Main stylesheet */" > assets/css/main.css; \
     fi
+
+# Set Node.js options for build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Build the Nuxt application
 RUN npm run build
