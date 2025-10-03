@@ -1,13 +1,52 @@
+import { supabase } from '~/server/utils/database';
+
 export default defineEventHandler(async (event) => {
-  const { id, approve } = await readBody(event)
-  const status = approve ? 'approved' : 'rejected'
+  try {
+    const { id, approve } = await readBody(event);
+    const status = approve ? 'approved' : 'rejected';
 
-  await db.collection('badgeRequests').updateOne({ id }, { $set: { status } })
+    if (!id || approve === undefined) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Missing required fields: id and approve'
+      });
+    }
 
-  if (approve) {
-    const req = await db.collection('badgeRequests').findOne({ id })
-    await db.collection('users').updateOne({ id: req.userId }, { $set: { verified: true } })
+    // Update badge request status
+    const { error: updateError } = await supabase
+      .from('badge_requests')
+      .update({ 
+        status,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id);
+      
+    if (updateError) throw updateError;
+
+    if (approve) {
+      // Get the request to find user ID
+      const { data: request, error: fetchError } = await supabase
+        .from('badge_requests')
+        .select('user_id')
+        .eq('id', id)
+        .single();
+        
+      if (fetchError) throw fetchError;
+
+      // Update user verification status
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({ is_verified: true })
+        .eq('id', request.user_id);
+        
+      if (userUpdateError) throw userUpdateError;
+    }
+
+    return { success: true, status };
+  } catch (err) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to update verification request'
+    });
   }
-
-  return { success: true }
-})
+});
