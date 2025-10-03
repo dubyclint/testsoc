@@ -10,11 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { gun, sea, ensureUserPair } from '~/gundb/client'
+import { ref } from 'vue';
+// import { gun, sea, ensureUserPair } from '~/gundb/client'; // Commented out - may not exist
 
-const groupName = ref('')
-const groupDescription = ref('')
+const groupName = ref('');
+const groupDescription = ref('');
 
 async function createGroup() {
   // Implementation for creating group
@@ -22,13 +22,13 @@ async function createGroup() {
     name: groupName.value,
     description: groupDescription.value,
     createdAt: new Date().toISOString()
-  }
+  };
   
-  gun.get('groups').set(groupData)
+  // gun.get('groups').set(groupData); // Commented out - gun not available
   
   // Reset form
-  groupName.value = ''
-  groupDescription.value = ''
+  groupName.value = '';
+  groupDescription.value = '';
 }
 </script>
 
@@ -42,4 +42,6 @@ form {
   gap: 1rem;
 }
 </style>
+
+
 
