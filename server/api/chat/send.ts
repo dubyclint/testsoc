@@ -1,18 +1,48 @@
+import { supabase } from '~/server/utils/database';
+
 export default defineEventHandler(async (event) => {
-  const user = event.context.user
-  const { recipientId, message } = await readBody(event)
+  try {
+    const user = event.context.user;
+    const { recipientId, message } = await readBody(event);
 
-  await db.collection('chats').insertOne({
-    sender: user.id,
-    recipient: recipientId,
-    message,
-    timestamp: Date.now()
-  })
+    // Insert chat message
+    const { error: chatError } = await supabase
+      .from('chats')
+      .insert({
+        sender_id: user.id,
+        recipient_id: recipientId,
+        message,
+        timestamp: new Date().toISOString()
+      });
+      
+    if (chatError) throw chatError;
 
-  await db.collection('users').updateOne(
-    { _id: user.id },
-    { $addToSet: { chattedWith: recipientId } }
-  )
+    // Update user's chatted_with list
+    const { data: currentUser, error: fetchError } = await supabase
+      .from('users')
+      .select('chatted_with')
+      .eq('id', user.id)
+      .single();
+      
+    if (fetchError) throw fetchError;
 
-  return { success: true }
-})
+    const chattedWith = [...(currentUser.chatted_with || [])];
+    if (!chattedWith.includes(recipientId)) {
+      chattedWith.push(recipientId);
+      
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ chatted_with: chattedWith })
+        .eq('id', user.id);
+        
+      if (updateError) throw updateError;
+    }
+
+    return { success: true };
+  } catch (err) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to send message'
+    });
+  }
+});
