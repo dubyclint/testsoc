@@ -11,18 +11,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { gun } from '~/gundb/client'
+import { ref, onMounted } from 'vue';
+// import { gun } from '~/gundb/client'; // Commented out - may not exist
 
 const profile = ref({
   name: '',
   email: '',
   bio: ''
-})
+});
 
 onMounted(() => {
   // Load existing profile data
-})
+});
 
 function saveProfile() {
   // Save profile logic
@@ -39,4 +39,5 @@ form {
   gap: 1rem;
 }
 </style>
+
 
