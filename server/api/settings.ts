@@ -1,31 +1,64 @@
-import express from 'express'
-import { getSettings, saveSetting } from '../db/index'
-import { verifyJWT } from '../auth/verify-jwt'
+import { supabase } from '~/server/utils/database';
 
-const router = express.Router()
+export default defineEventHandler(async (event) => {
+  const method = getMethod(event);
+  
+  if (method === 'GET') {
+    const query = getQuery(event);
+    const scope = query.scope as string;
+    
+    if (!scope) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Missing scope parameter'
+      });
+    }
 
-router.get('/', verifyJWT, (req, res) => {
-  const scope = req.query.scope as string
-  if (!scope) return res.status(400).json({ error: 'Missing scope' })
-
-  try {
-    const settings = getSettings(scope)
-    res.json(settings)
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load settings' })
+    try {
+      const { data: settings, error } = await supabase
+        .from('settings')
+        .select('*')
+        .eq('scope', scope);
+        
+      if (error) throw error;
+      return settings;
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to load settings'
+      });
+    }
   }
-})
+  
+  if (method === 'POST') {
+    const body = await readBody(event);
+    const { scope, key, value } = body;
+    
+    if (!scope || !key) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Missing scope or key'
+      });
+    }
 
-router.post('/', verifyJWT, express.json(), (req, res) => {
-  const { scope, key, value } = req.body
-  if (!scope || !key) return res.status(400).json({ error: 'Missing scope or key' })
-
-  try {
-    saveSetting(scope, key, value)
-    res.json({ success: true })
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save setting' })
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ scope, key, value });
+        
+      if (error) throw error;
+      return { success: true };
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to save setting'
+      });
+    }
   }
-})
+  
+  throw createError({
+    statusCode: 405,
+    statusMessage: 'Method not allowed'
+  });
+});
 
-export default router
