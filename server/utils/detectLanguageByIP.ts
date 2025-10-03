@@ -1,20 +1,27 @@
-export async function detectLanguageByIP(ip: string): Promise<string> {
-  try {
-    const geo = await fetch(`https://ipapi.co/${ip}/json`).then(res => res.json())
-    const country = geo.country_name
+export const detectLanguageByIP = (country: string): string => {
+  const countryLanguageMap: Record<string, string> = {
+    'US': 'en-US',
+    'United States': 'en-US',
+    'CA': 'en-CA',
+    'Canada': 'en-CA',
+    'GB': 'en-GB',
+    'United Kingdom': 'en-GB',
+    'AU': 'en-AU',
+    'Australia': 'en-AU',
+    'FR': 'fr-FR',
+    'France': 'fr-FR',
+    'DE': 'de-DE',
+    'Germany': 'de-DE',
+    'ES': 'es-ES',
+    'Spain': 'es-ES',
+    'IT': 'it-IT',
+    'Italy': 'it-IT',
+    'JP': 'ja-JP',
+    'Japan': 'ja-JP',
+    'CN': 'zh-CN',
+    'China': 'zh-CN'
+  };
 
-    const countryToLang: Record<string, string> = {
-      Nigeria: 'ha',
-      France: 'fr',
-      China: 'zh',
-      Germany: 'de',
-      Brazil: 'pt',
-      India: 'hi',
-      United States: 'en'
-    }
+  return countryLanguageMap[country] || 'en-US';
+};
 
-    return countryToLang[country] || 'en'
-  } catch (err) {
-    return 'en'
-  }
-}
