@@ -1,9 +1,10 @@
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
   
   // Add required modules
   modules: [
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@vueuse/nuxt'
   ],
   
   // Add CSS
@@ -17,23 +18,28 @@ export default defineNuxtConfig({
   
   // Build configuration
   build: {
-    transpile: ['@supabase/supabase-js']
+    transpile: ['gun']
   },
   
-  // Vite configuration
+  // Vite configuration for Gun.js compatibility
   vite: {
     esbuild: {
       target: 'es2020'
     },
     define: {
-      global: 'globalThis'
+      global: 'globalThis',
+      'process.browser': 'process.client'
     },
     optimizeDeps: {
-      include: ['@supabase/supabase-js']
+      include: ['gun', '@supabase/supabase-js']
+    },
+    // Fix Gun.js CommonJS/ESM issues
+    ssr: {
+      noExternal: ['gun']
     }
   },
   
-  // Nitro configuration - THIS IS KEY for fixing the build issue
+  // Nitro configuration for production deployment
   nitro: {
     preset: 'node-server',
     experimental: {
@@ -44,14 +50,14 @@ export default defineNuxtConfig({
         target: 'es2020'
       }
     },
-    minify: false,
-    sourceMap: false,
-    // Ensure proper server output
-    output: {
-      dir: '.output',
-      serverDir: '.output/server',
-      publicDir: '.output/public'
-    }
+    minify: process.env.NODE_ENV === 'production',
+    sourceMap: process.env.NODE_ENV !== 'production'
+  },
+  
+  // Server configuration for Zeabur
+  server: {
+    host: process.env.NUXT_HOST || '0.0.0.0',
+    port: process.env.NUXT_PORT || 8080
   },
   
   // Runtime configuration
@@ -65,7 +71,7 @@ export default defineNuxtConfig({
     public: {
       supabaseUrl: process.env.SUPABASE_URL || '',
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080'
     }
   }
 });
