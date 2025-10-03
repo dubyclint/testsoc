@@ -13,14 +13,21 @@ RUN npm install
 # Copy project files
 COPY . .
 
-# Create missing assets directory and CSS file if needed
-RUN mkdir -p assets/css && \
-    touch assets/css/main.css
+# Create proper directory structure for CSS files
+RUN mkdir -p assets/css public/css static/css && \
+    echo "/* Main CSS file */" > assets/css/main.css
 
-# Build the Nuxt.js application
+# Clean up any malformed import paths in the codebase
+RUN find . -type f \( -name "*.vue" -o -name "*.js" -o -name "*.ts" \) -not -path "./node_modules/*" | \
+    xargs sed -i 's|~/\/assets|~/assets|g; s|@\/\/assets|@/assets|g; s|\/\/assets|/assets|g' 2>/dev/null || true
+
+# Generate Nuxt types and prepare build
+RUN npm run postinstall || npm run prepare || true
+
+# Build the application
 RUN npm run build
 
-# Expose port 3000 (Nuxt.js default)
+# Expose port 3000
 EXPOSE 3000
 
 # Start the application
