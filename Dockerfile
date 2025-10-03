@@ -4,33 +4,26 @@ LABEL "framework"="nuxt.js"
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy project files
+# Copy all project files
 COPY . .
 
-# Create proper directory structure for CSS files
-RUN mkdir -p assets/css public/css static/css && \
-    echo "/* Main CSS file */" > assets/css/main.css
+# Ensure the assets/css/main.css file exists
+RUN mkdir -p assets/css && \
+    if [ ! -f assets/css/main.css ]; then \
+        echo "/* Main stylesheet */" > assets/css/main.css; \
+    fi
 
-# Clean up any malformed import paths in the codebase
-RUN find . -type f \( -name "*.vue" -o -name "*.js" -o -name "*.ts" \) -not -path "./node_modules/*" | \
-    xargs sed -i 's|~/\/assets|~/assets|g; s|@\/\/assets|@/assets|g; s|\/\/assets|/assets|g' 2>/dev/null || true
-
-# Generate Nuxt types and prepare build
-RUN npm run postinstall || npm run prepare || true
-
-# Build the application
+# Build the Nuxt application
 RUN npm run build
 
 # Expose port 3000
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"]</parameter>
-<parameter name="language">dockerfile</parameter>
-</invoke>
+CMD ["npm", "start"]
