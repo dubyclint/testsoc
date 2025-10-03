@@ -1,38 +1,84 @@
+import { supabase } from '~/server/utils/database';
+
 export default defineEventHandler(async (event) => {
-  const method = event.req.method
-  const dbCollection = db.collection('userOverrides')
+  const method = getMethod(event);
 
   if (method === 'GET') {
-    const { userId } = getQuery(event)
-    return await dbCollection.find({ userId }).toArray()
+    try {
+      const { userId } = getQuery(event);
+      const { data: overrides, error } = await supabase
+        .from('user_overrides')
+        .select('*')
+        .eq('user_id', userId);
+        
+      if (error) throw error;
+      return overrides;
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to fetch user overrides'
+      });
+    }
   }
 
   if (method === 'POST') {
-    const override = await readBody(event)
+    try {
+      const override = await readBody(event);
 
-    if (!override.userId || !override.overrideType || !override.key) {
-      return { success: false, message: 'Missing required fields.' }
+      if (!override.userId || !override.overrideType || !override.key) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Missing required fields: userId, overrideType, key'
+        });
+      }
+
+      const overrideData = {
+        user_id: override.userId,
+        override_type: override.overrideType,
+        key: override.key,
+        value: override.value,
+        updated_at: new Date().toISOString(),
+        created_at: override.createdAt || new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('user_overrides')
+        .upsert(overrideData, {
+          onConflict: 'user_id,override_type,key'
+        });
+        
+      if (error) throw error;
+      return { success: true, message: 'Override saved.' };
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to save user override'
+      });
     }
-
-    override.updatedAt = new Date()
-    override.createdAt = override.createdAt || new Date()
-
-    await dbCollection.updateOne(
-      {
-        userId: override.userId,
-        overrideType: override.overrideType,
-        key: override.key
-      },
-      { $set: override },
-      { upsert: true }
-    )
-
-    return { success: true, message: 'Override saved.' }
   }
 
   if (method === 'DELETE') {
-    const { userId, key } = await readBody(event)
-    await dbCollection.deleteOne({ userId, key })
-    return { success: true, message: 'Override removed.' }
+    try {
+      const { userId, key } = await readBody(event);
+      const { error } = await supabase
+        .from('user_overrides')
+        .delete()
+        .eq('user_id', userId)
+        .eq('key', key);
+        
+      if (error) throw error;
+      return { success: true, message: 'Override deleted.' };
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to delete user override'
+      });
+    }
   }
-})
+  
+  throw createError({
+    statusCode: 405,
+    statusMessage: 'Method not allowed'
+  });
+});
+
