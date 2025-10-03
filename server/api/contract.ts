@@ -1,19 +1,29 @@
+import { supabase } from "~/server/utils/database"
 import express from 'express'
 import { EthClient } from '../../lib/eth-client'
 import abi from '../../scripts/abi.json'
 
 const router = express.Router()
 
-const client = new EthClient({
-  providerUrl: process.env.PROVIDER_URL!,
-  privateKey: process.env.PRIVATE_KEY!,
-  contractAddress: process.env.CONTRACT_ADDRESS!,
-  abi,
-  client: process.env.ETH_CLIENT_TYPE as 'ethers' | 'web3'
-})
+// Initialize ETH client only if environment variables are present
+let client: EthClient | null = null
+
+if (process.env.PROVIDER_URL && process.env.PRIVATE_KEY && process.env.CONTRACT_ADDRESS) {
+  client = new EthClient({
+    providerUrl: process.env.PROVIDER_URL,
+    privateKey: process.env.PRIVATE_KEY,
+    contractAddress: process.env.CONTRACT_ADDRESS,
+    abi,
+    client: (process.env.ETH_CLIENT_TYPE as 'ethers' | 'web3') || 'ethers'
+  })
+}
 
 // GET /api/contract/read?method=getValue
 router.get('/read', async (req, res) => {
+  if (!client) {
+    return res.status(500).json({ error: 'ETH client not configured' })
+  }
+
   const method = req.query.method as string
   const args = req.query.args ? JSON.parse(req.query.args as string) : []
 
@@ -27,6 +37,10 @@ router.get('/read', async (req, res) => {
 
 // POST /api/contract/write
 router.post('/write', express.json(), async (req, res) => {
+  if (!client) {
+    return res.status(500).json({ error: 'ETH client not configured' })
+  }
+
   const { method, args = [] } = req.body
 
   try {
@@ -37,18 +51,4 @@ router.post('/write', express.json(), async (req, res) => {
   }
 })
 
-// GET /api/contract/listen?event=ValueChanged
-router.get('/listen', (req, res) => {
-  const event = req.query.event as string
-  if (!event) return res.status(400).json({ error: 'Missing event name' })
-
-  client.listen(event, (data: any) => {
-    console.log(`🔔 Event ${event}:`, data)
-  })
-
-  res.json({ listening: true, event })
-})
-
 export default router
-
-
