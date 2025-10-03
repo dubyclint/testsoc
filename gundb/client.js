@@ -1,11 +1,14 @@
-import Gun from 'gun/gun'
-import SEA from 'gun/sea'
+// gundb/client.js
+import Gun from 'gun'
 
+// Initialize Gun with relay peer
 export const gun = Gun(['https://gun-manhattan.herokuapp.com/gun'])
-export const sea = SEA
+
+// SEA (Security, Encryption, Authorization) utilities
+export const sea = Gun.SEA
 
 // Ensure the current user has a SEA keypair stored locally and publish their public key to Gun.
-export async function ensureUserPair(userId: string) {
+export async function ensureUserPair(userId) {
   const key = `sea_pair_${userId}`
   let pair = localStorage.getItem(key)
   if (!pair) {
@@ -19,10 +22,11 @@ export async function ensureUserPair(userId: string) {
 }
 
 // Helper to get a user's published public key from Gun
-export async function getUserPub(userId: string): Promise<string | null> {
+export async function getUserPub(userId) {
   return new Promise((resolve) => {
     gun.get(`users/${userId}`).once((data) => {
       resolve(data?.pub || null)
     })
   })
 }
+
