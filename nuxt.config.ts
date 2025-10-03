@@ -7,8 +7,8 @@ export default defineNuxtConfig({
     typeCheck: false
   },
   
-  // CSS framework (only if the file exists)
-  css: [],
+  // Remove the CSS line since the file doesn't exist
+  // css: ['~/assets/css/main.css'],  // <-- Remove this line
   
   // Build configuration
   build: {
@@ -34,5 +34,3 @@ export default defineNuxtConfig({
     }
   }
 });
-
-
