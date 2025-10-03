@@ -7,7 +7,10 @@ WORKDIR /app
 # Copy package files first
 COPY package*.json ./
 
-# Install dependencies
+# Install the missing markdown-it dependency
+RUN npm install markdown-it @types/markdown-it
+
+# Install other dependencies
 RUN npm install
 
 # Copy all project files
