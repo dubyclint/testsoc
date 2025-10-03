@@ -15,15 +15,33 @@ export default defineNuxtConfig({
     typeCheck: false
   },
   
-  // Build configuration
+  // Build configuration with polyfills
   build: {
     transpile: []
   },
   
-  // Vite configuration
+  // Vite configuration with polyfills
   vite: {
     esbuild: {
       target: 'es2020'
+    },
+    define: {
+      global: 'globalThis'
+    },
+    optimizeDeps: {
+      include: ['@supabase/supabase-js']
+    }
+  },
+  
+  // Nitro configuration for serverless functions
+  nitro: {
+    experimental: {
+      wasm: true
+    },
+    esbuild: {
+      options: {
+        target: 'es2020'
+      }
     }
   },
   
