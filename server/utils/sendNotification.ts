@@ -1,9 +1,27 @@
-export async function sendNotification(userId, type, message) {
-  await db.collection('notifications').insertOne({
-    userId,
-    type, // 'filter' | 'rematch' | 'group'
-    message,
-    timestamp: new Date(),
-    read: false
-  })
+import { supabase } from './database';
+
+export async function sendNotification(
+  userId: string, 
+  type: 'filter' | 'rematch' | 'group' | 'match' | 'system', 
+  message: string
+): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .insert({
+        user_id: userId,
+        type,
+        message,
+        timestamp: new Date().toISOString(),
+        read: false
+      });
+      
+    if (error) {
+      console.error('Failed to send notification:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    throw error;
+  }
 }
