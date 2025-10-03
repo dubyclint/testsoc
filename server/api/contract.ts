@@ -1,12 +1,9 @@
-import { supabase } from "~/server/utils/database"
-import express from 'express'
-import { EthClient } from '../../lib/eth-client'
-import abi from '../../scripts/abi.json'
-
-const router = express.Router()
+import { supabase } from "~/server/utils/database";
+import { EthClient } from '../../lib/eth-client';
+import abi from '../../scripts/abi.json';
 
 // Initialize ETH client only if environment variables are present
-let client: EthClient | null = null
+let client: EthClient | null = null;
 
 if (process.env.PROVIDER_URL && process.env.PRIVATE_KEY && process.env.CONTRACT_ADDRESS) {
   client = new EthClient({
@@ -15,40 +12,63 @@ if (process.env.PROVIDER_URL && process.env.PRIVATE_KEY && process.env.CONTRACT_
     contractAddress: process.env.CONTRACT_ADDRESS,
     abi,
     client: (process.env.ETH_CLIENT_TYPE as 'ethers' | 'web3') || 'ethers'
-  })
+  });
 }
 
-// GET /api/contract/read?method=getValue
-router.get('/read', async (req, res) => {
-  if (!client) {
-    return res.status(500).json({ error: 'ETH client not configured' })
+export default defineEventHandler(async (event) => {
+  const method = getMethod(event);
+  const url = getRequestURL(event);
+  
+  if (method === 'GET' && url.pathname.endsWith('/read')) {
+    if (!client) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'ETH client not configured'
+      });
+    }
+
+    const query = getQuery(event);
+    const contractMethod = query.method as string;
+    const args = query.args ? JSON.parse(query.args as string) : [];
+
+    try {
+      const result = await client.read(contractMethod, ...args);
+      return { result };
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Read failed',
+        data: err
+      });
+    }
   }
+  
+  if (method === 'POST' && url.pathname.endsWith('/write')) {
+    if (!client) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'ETH client not configured'
+      });
+    }
 
-  const method = req.query.method as string
-  const args = req.query.args ? JSON.parse(req.query.args as string) : []
+    const body = await readBody(event);
+    const { method: contractMethod, args = [] } = body;
 
-  try {
-    const result = await client.read(method, ...args)
-    res.json({ result })
-  } catch (err) {
-    res.status(500).json({ error: 'Read failed', details: err })
+    try {
+      const result = await client.write(contractMethod, ...args);
+      return { success: true, tx: result };
+    } catch (err) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Write failed',
+        data: err
+      });
+    }
   }
-})
+  
+  throw createError({
+    statusCode: 405,
+    statusMessage: 'Method not allowed'
+  });
+});
 
-// POST /api/contract/write
-router.post('/write', express.json(), async (req, res) => {
-  if (!client) {
-    return res.status(500).json({ error: 'ETH client not configured' })
-  }
-
-  const { method, args = [] } = req.body
-
-  try {
-    const result = await client.write(method, ...args)
-    res.json({ success: true, tx: result })
-  } catch (err) {
-    res.status(500).json({ error: 'Write failed', details: err })
-  }
-})
-
-export default router
