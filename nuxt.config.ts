@@ -1,14 +1,19 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   
+  // Add required modules
+  modules: [
+    '@pinia/nuxt'
+  ],
+  
+  // Add CSS
+  css: ['~/assets/css/main.css'],
+  
   // TypeScript configuration
   typescript: {
     strict: false,
     typeCheck: false
   },
-  
-  // CSS framework (only if the file exists)
-  css: [],
   
   // Build configuration
   build: {
@@ -26,11 +31,14 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Private keys (only available on server-side)
     supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || '',
+    jwtSecret: process.env.JWT_SECRET || '',
+    fcmServerKey: process.env.FCM_SERVER_KEY || '',
     
     // Public keys (exposed to client-side)
     public: {
       supabaseUrl: process.env.SUPABASE_URL || '',
-      supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000'
     }
   }
 });
