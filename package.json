@@ -3,24 +3,29 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nuxt dev",
     "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
     "start": "node .output/server/index.mjs"
   },
   "dependencies": {
-    "nuxt": "^3.10.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "@vueuse/core": "^10.5.0",
+    "nuxt": "^3.19.2",
     "vue": "^3.4.0",
-    "pg": "^8.11.1",
-    "markdown-it": "^13.0.1",
-    "emojione": "^3.1.2",
-    "gun": "^0.2020.1237",
-    "@supabase/supabase-js": "^2.39.0"
+    "vue-router": "^4.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.5.1",
-    "@types/markdown-it": "^12.2.3",
-    "@types/emojione": "^2.2.6"
+    "@nuxt/devtools": "^1.0.0",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
+
 
 
