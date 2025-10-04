@@ -28,7 +28,7 @@ export class Wallet {
       .insert(walletInserts)
       .select();
 
-    if (error) throw error;
+    if (error) throw error; 
     return data;
   }
 
