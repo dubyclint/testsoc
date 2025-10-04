@@ -1,13 +1,12 @@
-// Export only components that exist
-// Remove or comment out any components that don't exist in your project
+// components/index.ts - Clean component exports
+export { default as AdSlot } from './AdSlot.vue'
+export { default as AdminAdAnalytics } from './AdminAdAnalytics.vue'
+export { default as ChatBox } from './ChatBox.vue'
+export { default as ExploreGrid } from './ExploreGrid.vue'
+export { default as PostDetail } from './PostDetail.vue'
+export { default as RankAdminPanel } from './RankAdminPanel.vue'
+export { default as TradeListings } from './TradeListings.vue'
+export { default as UserInbox } from './UserInbox.vue'
+export { default as VerifiedBadgeAdmin } from './VerifiedBadgeAdmin.vue'
 
-// Example exports - adjust based on your actual components
-export { default as CreatePost } from './CreatePost.vue';
-export { default as FeedPosts } from './FeedPosts.vue';
-
-// Add other components as needed, but only if the files actually exist
-// export { default as AuthForm } from './AuthForm.vue';
-// export { default as EditProfile } from './EditProfile.vue';
-// export { default as GroupChat } from './GroupChat.vue';
-// export { default as CreateGroup } from './CreateGroup.vue';
-// export { default as AdminPanel } from './AdminPanel.vue';
+// Remove any duplicate exports or conflicting imports
