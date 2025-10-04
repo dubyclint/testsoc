@@ -1,4 +1,6 @@
 {
+  "name": "socialverse-web",
+  "private": true,
   "scripts": {
     "build": "nuxt build",
     "build:analyze": "nuxt build --analyze",
@@ -7,7 +9,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "optimize": "node scripts/optimize-all.js"
+    "optimize": "node scripts/optimize-all.js",
+    "postinstall": "nuxt prepare"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -15,5 +18,11 @@
     "vue": "latest",
     "vue-router": "latest",
     "webpack-bundle-analyzer": "^4.10.1"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.5.1",
+    "pinia": "^2.1.7",
+    "@supabase/supabase-js": "^2.38.4",
+    "@nuxtjs/supabase": "^1.1.6"
   }
 }
