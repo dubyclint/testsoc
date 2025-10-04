@@ -39,7 +39,7 @@ export default defineNuxtConfig({
     }
   },
   
-  // Nitro configuration for production deployment
+  // Nitro configuration for production deployment  
   nitro: {
     preset: 'node-server',
     experimental: {
@@ -51,7 +51,13 @@ export default defineNuxtConfig({
       }
     },
     minify: process.env.NODE_ENV === 'production',
-    sourceMap: process.env.NODE_ENV !== 'production'
+    sourceMap: process.env.NODE_ENV !== 'production',
+    // Ensure proper server output
+    output: {
+      dir: '.output',
+      serverDir: '.output/server',
+      publicDir: '.output/public'
+    }
   },
   
   // Server configuration for Zeabur
