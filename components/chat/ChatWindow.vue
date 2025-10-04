@@ -40,69 +40,77 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import { gun } from '~/gundb/client';
+import { ref, onMounted, nextTick } from 'vue'
 
-const messages = ref([]);
-const newMessage = ref('');
-const messagesContainer = ref(null);
-const onlineUsers = ref(0);
+const { $gun } = useNuxtApp()
+
+const messages = ref([])
+const newMessage = ref('')
+const messagesContainer = ref(null)
+const onlineUsers = ref(0)
 
 // Mock current user - replace with actual user data
 const currentUser = {
   id: 'user_' + Math.random().toString(36).substr(2, 9),
   username: 'User' + Math.floor(Math.random() * 1000),
   avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + Math.random()
-};
+}
 
 onMounted(() => {
+  // Only initialize if Gun is available (client-side)
+  if (!$gun) return
+
   // Listen for new messages
-  gun.get('universe_chat').map().on((data, key) => {
+  $gun.get('universe_chat').map().on((data, key) => {
     if (data && data.text && data.timestamp) {
-      const messageExists = messages.value.find(m => m.id === key);
+      const messageExists = messages.value.find(m => m.id === key)
       if (!messageExists) {
         messages.value.push({
           id: key,
           ...data,
           isOwn: data.userId === currentUser.id
-        });
+        })
         // Sort messages by timestamp
-        messages.value.sort((a, b) => a.timestamp - b.timestamp);
-        nextTick(scrollToBottom);
+        messages.value.sort((a, b) => a.timestamp - b.timestamp)
+        scrollToBottom()
       }
     }
-  });
-  
-  // Mock online users count
-  onlineUsers.value = Math.floor(Math.random() * 50) + 10;
-});
+  })
 
-function sendMessage() {
-  if (!newMessage.value.trim()) return;
-  
-  const message = {
-    text: newMessage.value,
+  // Mock online users count
+  onlineUsers.value = Math.floor(Math.random() * 50) + 10
+})
+
+const sendMessage = () => {
+  if (!newMessage.value.trim() || !$gun) return
+
+  const messageData = {
+    text: newMessage.value.trim(),
     username: currentUser.username,
     userId: currentUser.id,
     avatar: currentUser.avatar,
     timestamp: Date.now()
-  };
+  }
+
+  // Send message to Gun
+  $gun.get('universe_chat').set(messageData)
   
-  gun.get('universe_chat').set(message);
-  newMessage.value = '';
+  newMessage.value = ''
 }
 
-function formatTime(timestamp) {
+const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString([], { 
     hour: '2-digit', 
     minute: '2-digit' 
-  });
+  })
 }
 
-function scrollToBottom() {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-  }
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  })
 }
 </script>
 
@@ -110,61 +118,64 @@ function scrollToBottom() {
 .chat-window {
   display: flex;
   flex-direction: column;
-  height: 600px;
-  background: white;
+  height: 500px;
+  border: 1px solid #e1e5e9;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: white;
   overflow: hidden;
 }
 
 .chat-header {
-  padding: 1rem;
-  background: #2563eb;
-  color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: 1px solid #e1e5e9;
 }
 
 .chat-header h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .online-count {
-  font-size: 0.875rem;
+  font-size: 14px;
   opacity: 0.9;
 }
 
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 12px;
 }
 
 .message {
   display: flex;
-  gap: 0.75rem;
+  gap: 12px;
   max-width: 80%;
 }
 
 .message.own {
-  align-self: flex-end;
+  margin-left: auto;
   flex-direction: row-reverse;
 }
 
 .message-avatar img {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .message-content {
   flex: 1;
+  min-width: 0;
 }
 
 .message.own .message-content {
@@ -173,9 +184,9 @@ function scrollToBottom() {
 
 .message-header {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .message.own .message-header {
@@ -184,65 +195,89 @@ function scrollToBottom() {
 
 .username {
   font-weight: 600;
-  font-size: 0.875rem;
-  color: #374151;
+  font-size: 14px;
+  color: #667eea;
 }
 
 .timestamp {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: #9ca3af;
 }
 
 .message-text {
-  background: #f3f4f6;
-  padding: 0.75rem;
-  border-radius: 12px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
   word-wrap: break-word;
 }
 
 .message.own .message-text {
-  background: #2563eb;
+  background: #667eea;
   color: white;
 }
 
 .chat-input {
-  padding: 1rem;
-  border-top: 1px solid #e5e7eb;
   display: flex;
-  gap: 0.75rem;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e1e5e9;
+  background: #f8fafc;
 }
 
 .message-input {
   flex: 1;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 12px 16px;
+  border: 1px solid #e1e5e9;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
 .message-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #667eea;
 }
 
 .send-btn {
-  padding: 0.75rem 1rem;
-  background: #2563eb;
+  padding: 12px 20px;
+  background: #667eea;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 24px;
+  font-size: 16px;
   cursor: pointer;
-  font-size: 1.2rem;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  min-width: 48px;
 }
 
 .send-btn:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: #5a67d8;
+  transform: translateY(-1px);
 }
 
 .send-btn:disabled {
-  background: #9ca3af;
+  opacity: 0.5;
   cursor: not-allowed;
 }
+
+.messages-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 </style>
+
