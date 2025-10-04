@@ -4,7 +4,7 @@ import { supabase } from '../utils/supabase.js';
 export class Pal {
   static async sendFriendRequest(requesterId, addresseeId) {
     // Check if request already exists
-    const { data: existing } = await supabase
+    const { data: existing } = await supabase 
       .from('pals')
       .select('*')
       .or(`and(requester_id.eq.${requesterId},addressee_id.eq.${addresseeId}),and(requester_id.eq.${addresseeId},addressee_id.eq.${requesterId})`)
