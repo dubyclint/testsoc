@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabase.js';
 
 export class P2PProfile {
   static async create(profileData) {
-    const { data, error } = await supabase
+    const { data, error } = await supabase 
       .from('p2p_profiles')
       .insert([{
         user_id: profileData.userId,
