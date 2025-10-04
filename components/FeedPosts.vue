@@ -32,10 +32,14 @@
 import { ref, onMounted } from 'vue';
 import CreatePost from '~/components/CreatePost.vue';
 import MarkdownIt from 'markdown-it';
-import emojione from 'emojione';
+import EmojiConvertor from 'emoji-js';
 import { supabase } from '~/utils/supabase';
 
 const md = new MarkdownIt();
+const emoji = new EmojiConvertor();
+emoji.img_set = 'emojione';
+emoji.img_sets.emojione.path = 'https://cdn.jsdelivr.net/emojione/assets/4.5/png/64/';
+
 const posts = ref([]);
 const page = ref(1);
 const loading = ref(false);
@@ -46,68 +50,60 @@ const postsPerPage = 10;
 function renderPost(content) {
   if (!content) return '';
   const markdown = md.render(content);
-  return emojione.shortnameToImage(markdown);
+  return emoji.replace_colons(markdown);
 }
 
 function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  return new Date(dateString).toLocaleDateString();
 }
 
-async function fetchPosts(pageNum = 1, append = false) {
-  loading.value = true;
-  error.value = '';
-  
+function onPostCreated(newPost) {
+  posts.value.unshift(newPost);
+}
+
+async function loadPosts() {
   try {
-    const from = (pageNum - 1) * postsPerPage;
-    const to = from + postsPerPage - 1;
+    loading.value = true;
+    error.value = '';
     
     const { data, error: supabaseError } = await supabase
       .from('posts')
       .select('*')
       .order('created_at', { ascending: false })
-      .range(from, to);
-
-    if (supabaseError) {
-      throw supabaseError;
-    }
-
-    if (append) {
-      posts.value.push(...(data || []));
+      .range((page.value - 1) * postsPerPage, page.value * postsPerPage - 1);
+    
+    if (supabaseError) throw supabaseError;
+    
+    if (data && data.length > 0) {
+      if (page.value === 1) {
+        posts.value = data;
+      } else {
+        posts.value.push(...data);
+      }
+      hasMore.value = data.length === postsPerPage;
     } else {
-      posts.value = data || [];
+      hasMore.value = false;
     }
-    
-    // Check if there are more posts
-    hasMore.value = (data?.length || 0) === postsPerPage;
-    
   } catch (err) {
-    error.value = err.message || 'Failed to fetch posts';
-    console.error('Error fetching posts:', err);
+    error.value = 'Failed to load posts: ' + err.message;
   } finally {
     loading.value = false;
   }
 }
 
 function loadMore() {
-  if (loading.value || !hasMore.value) return;
   page.value++;
-  fetchPosts(page.value, true);
-}
-
-function onPostCreated(newPost) {
-  // Add the new post to the beginning of the list
-  posts.value.unshift(newPost);
+  loadPosts();
 }
 
 onMounted(() => {
-  fetchPosts();
+  loadPosts();
 });
 </script>
 
 <style scoped>
 .feed-posts {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
 }
@@ -115,92 +111,62 @@ onMounted(() => {
 .loading, .error {
   text-align: center;
   padding: 2rem;
-  font-size: 1.1rem;
 }
 
 .error {
-  color: #dc3545;
+  color: #e74c3c;
+  background: #fdf2f2;
+  border-radius: 4px;
 }
 
 .posts-list {
   list-style: none;
   padding: 0;
-  margin: 2rem 0;
 }
 
 .post-item {
   background: white;
-  border: 1px solid #e1e5e9;
+  border: 1px solid #e1e8ed;
   border-radius: 8px;
-  padding: 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1rem;
 }
 
 .post-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+  color: #657786;
 }
 
 .post-author {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.post-date {
-  font-size: 0.9rem;
-  color: #6c757d;
+  font-weight: bold;
+  color: #1da1f2;
 }
 
 .post-content {
-  line-height: 1.6;
-  color: #333;
-}
-
-.post-content :deep(img.emoji) {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  margin: 0 2px;
-}
-
-.post-content :deep(p) {
-  margin-bottom: 1rem;
-}
-
-.post-content :deep(p:last-child) {
-  margin-bottom: 0;
+  line-height: 1.5;
 }
 
 .load-more-btn {
   display: block;
   margin: 2rem auto;
-  padding: 0.75rem 2rem;
-  background-color: #007bff;
+  padding: 0.75rem 1.5rem;
+  background: #1da1f2;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.2s;
 }
 
-.load-more-btn:hover:not(:disabled) {
-  background-color: #0056b3;
+.load-more-btn:hover {
+  background: #1991db;
 }
 
 .load-more-btn:disabled {
-  background-color: #6c757d;
+  background: #ccc;
   cursor: not-allowed;
-}
-
-h2 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  text-align: center;
 }
 </style>
