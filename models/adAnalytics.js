@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabase.js';
 
 export class AdAnalytics {
   static async createCampaign(campaignData) {
-    const { data, error } = await supabase
+    const { data, error } = await supabase 
       .from('ad_analytics')
       .insert([{
         ad_id: campaignData.adId,
