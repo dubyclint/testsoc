@@ -1,10 +1,16 @@
-const mongoose = require('mongoose')
+// Pal.js - Supabase PostgreSQL Model
+import { supabase } from './utils/supabase.js';
 
-const palSchema = new mongoose.Schema({
-  requesterId: String,
-  recipientId: String,
-  status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
-  createdAt: { type: Date, default: Date.now }
-})
-
-module.exports = mongoose.model('Pal', palSchema)
+export class Pal {
+  static async create(palData) {
+    const { data, error } = await supabase
+      .from('pals')
+      .insert([{
+        requester_id: palData.requesterId,
+        addressee_id: palData.addresseeId,
+        status: palData.status || 'pending'
+      }])
+      .select(`
+        *,
+        requester:requester_id(username, avatar_url),
+        addressee:addressee_id(username, avatar_url)*
