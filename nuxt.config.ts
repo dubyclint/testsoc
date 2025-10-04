@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   devtools: { enabled: process.env.NODE_ENV !== 'production' },
   
+  // SSR Configuration
+  ssr: true,
+  
   // Add required modules
   modules: [
     '@pinia/nuxt',
@@ -18,10 +21,10 @@ export default defineNuxtConfig({
   
   // Build configuration
   build: {
-    transpile: ['gun']
+    transpile: []
   },
   
-  // Vite configuration for Gun.js compatibility
+  // Vite configuration
   vite: {
     esbuild: {
       target: 'es2020'
@@ -31,15 +34,16 @@ export default defineNuxtConfig({
       'process.browser': 'process.client'
     },
     optimizeDeps: {
-      include: ['gun', '@supabase/supabase-js']
+      include: ['@supabase/supabase-js'],
+      exclude: ['gun']  // Exclude Gun.js from optimization
     },
-    // Fix Gun.js CommonJS/ESM issues
     ssr: {
-      noExternal: ['gun']
+      noExternal: [],
+      external: ['gun']  // Keep Gun.js external for SSR
     }
   },
   
-  // Nitro configuration for production deployment  
+  // Nitro configuration
   nitro: {
     preset: 'node-server',
     experimental: {
@@ -51,16 +55,10 @@ export default defineNuxtConfig({
       }
     },
     minify: process.env.NODE_ENV === 'production',
-    sourceMap: process.env.NODE_ENV !== 'production',
-    // Ensure proper server output
-    output: {
-      dir: '.output',
-      serverDir: '.output/server',
-      publicDir: '.output/public'
-    }
+    sourceMap: process.env.NODE_ENV !== 'production'
   },
   
-  // Server configuration for Zeabur
+  // Server configuration
   server: {
     host: process.env.NUXT_HOST || '0.0.0.0',
     port: process.env.NUXT_PORT || 8080
@@ -68,12 +66,12 @@ export default defineNuxtConfig({
   
   // Runtime configuration
   runtimeConfig: {
-    // Private keys (only available on server-side)
+    // Private keys (server-side only)
     supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || '',
     jwtSecret: process.env.JWT_SECRET || '',
     fcmServerKey: process.env.FCM_SERVER_KEY || '',
     
-    // Public keys (exposed to client-side)
+    // Public keys (client-side)
     public: {
       supabaseUrl: process.env.SUPABASE_URL || '',
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
