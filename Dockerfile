@@ -16,18 +16,19 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY package*.json ./
 
-# Install dependencies (use npm install since no package-lock.json exists)
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Set environment variables
+# Set environment variables for SSR-safe build
 ENV NODE_ENV=production
 ENV NUXT_HOST=0.0.0.0
 ENV NUXT_PORT=8080
 ENV PORT=8080
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NUXT_SSR_LOG=false
 
 # Build the application
 RUN npm run build
@@ -40,7 +41,7 @@ RUN addgroup -g 1001 -S nodejs && \
 RUN chown -R nuxt:nodejs /app
 USER nuxt
 
-# Expose port 8080 (Zeabur standard)
+# Expose port 8080
 EXPOSE 8080
 
 # Health check
