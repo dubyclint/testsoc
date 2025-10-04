@@ -23,6 +23,8 @@
     "@pinia/nuxt": "^0.5.1",
     "pinia": "^2.1.7",
     "@supabase/supabase-js": "^2.38.4",
-    "@nuxtjs/supabase": "^1.1.6"
+    "@nuxtjs/supabase": "^1.1.6",
+    "emoji-js": "^3.9.0"
   }
 }
+
