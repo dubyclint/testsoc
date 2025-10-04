@@ -31,10 +31,19 @@
         placeholder="Type your message..."
         class="message-input"
         maxlength="500"
+        :disabled="!gunReady"
       />
-      <button @click="sendMessage" :disabled="!newMessage.trim()" class="send-btn">
+      <button 
+        @click="sendMessage" 
+        :disabled="!newMessage.trim() || !gunReady" 
+        class="send-btn"
+      >
         🚀
       </button>
+    </div>
+    
+    <div v-if="!gunReady" class="loading-indicator">
+      Connecting to chat...
     </div>
   </div>
 </template>
@@ -42,12 +51,13 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 
-const { $gun } = useNuxtApp()
-
+// Use dynamic import for Gun.js to avoid SSR issues
 const messages = ref([])
 const newMessage = ref('')
 const messagesContainer = ref(null)
 const onlineUsers = ref(0)
+const gunReady = ref(false)
+let gun = null
 
 // Mock current user - replace with actual user data
 const currentUser = {
@@ -56,33 +66,42 @@ const currentUser = {
   avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + Math.random()
 }
 
-onMounted(() => {
-  // Only initialize if Gun is available (client-side)
-  if (!$gun) return
+onMounted(async () => {
+  // Only load Gun on client side
+  if (process.client) {
+    try {
+      const gunModule = await import('~/gundb/client.js')
+      gun = gunModule.gun
+      gunReady.value = true
+      
+      // Listen for new messages
+      gun.get('universe_chat').map().on((data, key) => {
+        if (data && data.text && data.timestamp) {
+          const messageExists = messages.value.find(m => m.id === key)
+          if (!messageExists) {
+            messages.value.push({
+              id: key,
+              ...data,
+              isOwn: data.userId === currentUser.id
+            })
+            // Sort messages by timestamp
+            messages.value.sort((a, b) => a.timestamp - b.timestamp)
+            scrollToBottom()
+          }
+        }
+      })
 
-  // Listen for new messages
-  $gun.get('universe_chat').map().on((data, key) => {
-    if (data && data.text && data.timestamp) {
-      const messageExists = messages.value.find(m => m.id === key)
-      if (!messageExists) {
-        messages.value.push({
-          id: key,
-          ...data,
-          isOwn: data.userId === currentUser.id
-        })
-        // Sort messages by timestamp
-        messages.value.sort((a, b) => a.timestamp - b.timestamp)
-        scrollToBottom()
-      }
+      // Mock online users count
+      onlineUsers.value = Math.floor(Math.random() * 50) + 10
+    } catch (error) {
+      console.error('Failed to load Gun.js:', error)
+      gunReady.value = false
     }
-  })
-
-  // Mock online users count
-  onlineUsers.value = Math.floor(Math.random() * 50) + 10
+  }
 })
 
 const sendMessage = () => {
-  if (!newMessage.value.trim() || !$gun) return
+  if (!newMessage.value.trim() || !gun || !gunReady.value) return
 
   const messageData = {
     text: newMessage.value.trim(),
@@ -93,7 +112,7 @@ const sendMessage = () => {
   }
 
   // Send message to Gun
-  $gun.get('universe_chat').set(messageData)
+  gun.get('universe_chat').set(messageData)
   
   newMessage.value = ''
 }
@@ -123,6 +142,7 @@ const scrollToBottom = () => {
   border-radius: 12px;
   background: white;
   overflow: hidden;
+  position: relative;
 }
 
 .chat-header {
@@ -240,6 +260,11 @@ const scrollToBottom = () => {
   border-color: #667eea;
 }
 
+.message-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .send-btn {
   padding: 12px 20px;
   background: #667eea;
@@ -262,6 +287,19 @@ const scrollToBottom = () => {
   cursor: not-allowed;
 }
 
+.loading-indicator {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 10;
+}
+
 .messages-container::-webkit-scrollbar {
   width: 4px;
 }
@@ -280,4 +318,3 @@ const scrollToBottom = () => {
   background: #94a3b8;
 }
 </style>
-
