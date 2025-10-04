@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabase.js';
 
 export class MediaFile {
   static async create(fileData) {
-    const { data, error } = await supabase
+    const { data, error } = await supabase 
       .from('media_files')
       .insert([{
         user_id: fileData.userId,
