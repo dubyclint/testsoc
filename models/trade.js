@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabase.js';
 
 export class Trade {
   static async create(tradeData) {
-    const { data, error } = await supabase
+    const { data, error } = await supabase 
       .from('trades')
       .insert([{
         seller_id: tradeData.sellerId,
