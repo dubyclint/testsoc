@@ -42,7 +42,7 @@
       </button>
     </div>
     
-    <div v-if="!gunReady" class="loading-indicator">
+    <div v-if="!gunReady && mounted" class="loading-indicator">
       Connecting to chat...
     </div>
   </div>
@@ -51,52 +51,64 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 
-// Use dynamic import for Gun.js to avoid SSR issues
+// Reactive state
 const messages = ref([])
 const newMessage = ref('')
 const messagesContainer = ref(null)
 const onlineUsers = ref(0)
 const gunReady = ref(false)
+const mounted = ref(false)
+
+// Gun instance
 let gun = null
 
-// Mock current user - replace with actual user data
+// Mock current user
 const currentUser = {
   id: 'user_' + Math.random().toString(36).substr(2, 9),
   username: 'User' + Math.floor(Math.random() * 1000),
   avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + Math.random()
 }
 
+// Initialize Gun.js only on client-side
 onMounted(async () => {
-  // Only load Gun on client side
-  if (process.client) {
-    try {
-      const gunModule = await import('~/gundb/client.js')
-      gun = gunModule.gun
-      gunReady.value = true
-      
-      // Listen for new messages
-      gun.get('universe_chat').map().on((data, key) => {
-        if (data && data.text && data.timestamp) {
-          const messageExists = messages.value.find(m => m.id === key)
-          if (!messageExists) {
-            messages.value.push({
-              id: key,
-              ...data,
-              isOwn: data.userId === currentUser.id
-            })
-            // Sort messages by timestamp
-            messages.value.sort((a, b) => a.timestamp - b.timestamp)
-            scrollToBottom()
-          }
+  mounted.value = true
+  
+  // Only run on client-side
+  if (!process.client) return
+  
+  try {
+    // Dynamic import to avoid SSR issues
+    const Gun = await import('gun').then(m => m.default || m)
+    
+    // Initialize Gun
+    gun = Gun(['https://gun-manhattan.herokuapp.com/gun'])
+    gunReady.value = true
+    
+    console.log('Gun.js loaded successfully')
+    
+    // Listen for new messages
+    gun.get('universe_chat').map().on((data, key) => {
+      if (data && data.text && data.timestamp) {
+        const messageExists = messages.value.find(m => m.id === key)
+        if (!messageExists) {
+          messages.value.push({
+            id: key,
+            ...data,
+            isOwn: data.userId === currentUser.id
+          })
+          // Sort messages by timestamp
+          messages.value.sort((a, b) => a.timestamp - b.timestamp)
+          scrollToBottom()
         }
-      })
+      }
+    })
 
-      // Mock online users count
-      onlineUsers.value = Math.floor(Math.random() * 50) + 10
-    } catch (error) {
-      console.error('Failed to load Gun.js:', error)
-      gunReady.value = false
-    }
+    // Mock online users count
+    onlineUsers.value = Math.floor(Math.random() * 50) + 10
+    
+  } catch (error) {
+    console.error('Failed to load Gun.js:', error)
+    gunReady.value = false
   }
 })
 
