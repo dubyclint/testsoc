@@ -52,10 +52,12 @@
 import { ref, onMounted, computed } from 'vue';
 import { useAuth } from '~/composables/useAuth';
 import MarkdownIt from 'markdown-it';
-import emojione from 'emojione';
-// import { gun, sea, ensureUserPair, getUserPub } from '~/gundb/client'; // Commented out - may not exist
+import EmojiConvertor from 'emoji-js';
 
 const md = new MarkdownIt({ breaks: true, linkify: true });
+const emoji = new EmojiConvertor();
+emoji.img_set = 'emojione';
+emoji.img_sets.emojione.path = 'https://cdn.jsdelivr.net/emojione/assets/4.5/png/64/';
 
 const props = defineProps<{ groupId: string }>();
 const groupId = props.groupId;
@@ -81,7 +83,7 @@ function formatTime(ts: number) {
 
 function renderContent(text: string) {
   const html = md.render(text || '');
-  return emojione.shortnameToImage(html);
+  return emoji.replace_colons(html);
 }
 
 function inviteMember() {
@@ -125,4 +127,3 @@ onMounted(() => {
   text-align: center;
 }
 </style>
-
