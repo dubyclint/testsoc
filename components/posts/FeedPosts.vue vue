@@ -1,0 +1,66 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { gun } from '~/gundb/client';
+import CreatePost from '~/components/posts/CreatePost.vue';
+import MarkdownIt from 'markdown-it';
+import EmojiConvertor from 'emoji-js';
+
+const posts = ref([]);
+const loading = ref(true);
+
+const md = new MarkdownIt();
+const emoji = new EmojiConvertor();
+emoji.img_set = 'emojione';
+emoji.img_sets.emojione.path = 'https://cdn.jsdelivr.net/emojione/assets/4.5/png/64/';
+
+onMounted(() => {
+  // Load posts from GunDB
+  gun.get('posts').map().on((data, key) => {
+    if (data && data.content && data.timestamp) {
+      const existingPost = posts.value.find(p => p.id === key);
+      if (!existingPost) {
+        posts.value.push({
+          id: key,
+          ...data
+        });
+        // Sort by timestamp (newest first)
+        posts.value.sort((a, b) => b.timestamp - a.timestamp);
+      }
+    }
+  });
+  
+  loading.value = false;
+});
+
+function handleNewPost(post) {
+  posts.value.unshift(post);
+}
+
+function formatContent(content) {
+  // Convert markdown and emojis
+  let formatted = md.render(content);
+  formatted = emoji.replace_unified(formatted);
+  return formatted;
+}
+
+function formatTime(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+}
+</script>
+
+<template>
+  <!-- Your template content here -->
+</template>
+
+<style scoped>
+/* Your styles here */
+</style>
