@@ -1,21 +1,11 @@
+<!-- app.vue - Remove store initialization -->
 <template>
-  <div id="app">
+  <NuxtLayout>
     <NuxtPage />
-  </div>
+  </NuxtLayout>
 </template>
 
 <script setup>
-// Initialize user store on app start
-const userStore = useUserStore();
-
-onMounted(async () => {
-  await userStore.initialize();
-});
+// Remove any useUserStore() calls from here
+// Let stores initialize themselves when needed
 </script>
-
-<style>
-#app {
-  min-height: 100vh;
-  background-color: #f8f9fa;
-}
-</style>
