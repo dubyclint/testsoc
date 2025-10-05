@@ -10,33 +10,41 @@ export default defineNuxtConfig({
     
     // Public keys (exposed to client-side)
     public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
-      appName: process.env.NUXT_APP_NAME || 'SocialVerse'
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+      appName: process.env.NUXT_PUBLIC_APP_NAME || 'SocialVerse'
     }
   },
 
-  // Build optimization
-  build: {
-    transpile: ['@supabase/supabase-js']
+  // Supabase module configuration
+  supabase: {
+    redirect: false
   },
 
-  // Vite configuration for bundle optimization
+  // Pinia configuration (added this)
+  pinia: {
+    storesDirs: ['./stores/**']
+  },
+
+  // SSR configuration to prevent hydration issues
+  ssr: true,
+  
+  // Build optimization (REMOVED pinia from transpile - this was causing the conflict)
+  build: {
+    transpile: ['@supabase/supabase-js'] // Only Supabase, not pinia
+  },
+
+  // Vite configuration for bundle optimization  
   vite: {
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
+          // Clean vendor chunks
           manualChunks: {
-            // Vendor chunks
-            'vendor-vue': ['vue', 'vue-router', '@nuxt/kit'],
+            'vendor-vue': ['vue', 'vue-router'],
             'vendor-supabase': ['@supabase/supabase-js'],
-            
-            // Feature-based chunks
-            'feature-trading': ['./components/TradeListings.vue'],
-            'feature-social': ['./components/PostDetail.vue'],
-            'feature-admin': ['./components/AdminAdAnalytics.vue'],
-            'feature-wallet': ['./components/WalletSection.vue']
+            // REMOVED pinia from manual chunks since @pinia/nuxt handles it
           }
         }
       }
@@ -63,4 +71,3 @@ export default defineNuxtConfig({
     compressPublicAssets: true
   }
 })
-
