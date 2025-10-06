@@ -1,14 +1,9 @@
-// nuxt.config.ts
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@pinia/nuxt", "@nuxtjs/supabase"],
   
-  // Runtime configuration
   runtimeConfig: {
-    // Private keys (only available on server-side)
     supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
-    
-    // Public keys (exposed to client-side)
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -16,35 +11,34 @@ export default defineNuxtConfig({
     }
   },
 
-  // Supabase module configuration
   supabase: {
-    redirect: false
+    redirect: false,
+    clientOptions: {
+      auth: {
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    }
   },
 
-  // Pinia configuration (added this)
   pinia: {
     storesDirs: ['./stores/**']
   },
 
-  // SSR configuration to prevent hydration issues
   ssr: true,
   
-  // Build optimization (REMOVED pinia from transpile - this was causing the conflict)
   build: {
-    transpile: ['@supabase/supabase-js'] // Only Supabase, not pinia
+    transpile: []
   },
 
-  // Vite configuration for bundle optimization  
   vite: {
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          // Clean vendor chunks
           manualChunks: {
             'vendor-vue': ['vue', 'vue-router'],
-            'vendor-supabase': ['@supabase/supabase-js'],
-            // REMOVED pinia from manual chunks since @pinia/nuxt handles it
+            'vendor-supabase': ['@supabase/supabase-js']
           }
         }
       }
@@ -54,10 +48,8 @@ export default defineNuxtConfig({
     }
   },
 
-  // CSS optimization
   css: ['~/assets/css/main.css'],
 
-  // Component optimization
   components: [
     {
       path: '~/components',
@@ -65,9 +57,9 @@ export default defineNuxtConfig({
     }
   ],
 
-  // Nitro configuration
   nitro: {
     preset: 'node-server',
     compressPublicAssets: true
   }
 })
+
