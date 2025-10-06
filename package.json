@@ -21,11 +21,11 @@
     "emoji-js": "^3.9.0",
     "nuxt": "^3.13.0",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "markdown-it": "^14.1.0"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "webpack-bundle-analyzer": "^4.10.1"
   }
 }
-
