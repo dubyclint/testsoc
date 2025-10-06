@@ -21,31 +21,40 @@ export default defineNuxtConfig({
     redirect: false
   },
 
+  // Pinia configuration
+  pinia: {
+    storesDirs: ['./stores/**']
+  },
+
   // SSR configuration
   ssr: true,
   
-  // Build optimization
+  // Build configuration
   build: {
     transpile: ['@supabase/supabase-js']
   },
 
   // Vite configuration for bundle optimization  
   vite: {
+    define: {
+      global: 'globalThis'
+    },
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        external: ['gun'], // Externalize gun for dynamic import
+        external: ['gun'],
         output: {
+          // Clean vendor chunks
           manualChunks: {
             'vendor-vue': ['vue', 'vue-router'],
-            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-supabase': ['@supabase/supabase-js']
           }
         }
       }
     },
     optimizeDeps: {
       include: ['@supabase/supabase-js'],
-      exclude: ['gun'] // Exclude gun from pre-bundling
+      exclude: ['gun']
     }
   },
 
@@ -63,9 +72,22 @@ export default defineNuxtConfig({
   // Nitro configuration
   nitro: {
     preset: 'node-server',
-    compressPublicAssets: true
+    compressPublicAssets: true,
+    experimental: {
+      wasm: true
+    }
+  },
+
+  // App configuration
+  app: {
+    head: {
+      script: [
+        {
+          src: 'https://cdn.jsdelivr.net/npm/gun/gun.min.js',
+          defer: true
+        }
+      ]
+    }
   }
 })
-
-
 
