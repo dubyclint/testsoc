@@ -24,6 +24,7 @@
     "nuxt": "^3.13.0",
     "vue": "latest",
     "vue-router": "latest"
+    "gun": "^0.2020.1235"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.5.2",
