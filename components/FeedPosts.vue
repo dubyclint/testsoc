@@ -7,6 +7,7 @@
     </div>
     <div v-else-if="error" class="error">
       {{ error }}
+      <button @click="loadPosts" class="retry-btn">Try Again</button>
     </div>
     <ul v-else class="posts-list">
       <li v-for="post in posts" :key="post.id" class="post-item">
@@ -18,7 +19,7 @@
       </li>
     </ul>
     <button 
-      v-if="hasMore" 
+      v-if="hasMore && !error" 
       @click="loadMore" 
       :disabled="loading"
       class="load-more-btn"
@@ -33,7 +34,8 @@ import { ref, onMounted } from 'vue';
 import CreatePost from '~/components/CreatePost.vue';
 import MarkdownIt from 'markdown-it';
 import EmojiConvertor from 'emoji-js';
-import { supabase } from '~/utils/supabase';
+
+const supabase = useSupabaseClient();
 
 const md = new MarkdownIt();
 const emoji = new EmojiConvertor();
@@ -71,102 +73,26 @@ async function loadPosts() {
       .select('*')
       .order('created_at', { ascending: false })
       .range((page.value - 1) * postsPerPage, page.value * postsPerPage - 1);
-    
-    if (supabaseError) throw supabaseError;
-    
-    if (data && data.length > 0) {
-      if (page.value === 1) {
-        posts.value = data;
-      } else {
-        posts.value.push(...data);
-      }
-      hasMore.value = data.length === postsPerPage;
-    } else {
-      hasMore.value = false;
+
+    if (supabaseError) {
+      throw supabaseError;
     }
+    
+    if (page.value === 1) {
+      posts.value = data || [];
+    } else {
+      posts.value.push(...(data || []));
+    }
+    
+    hasMore.value = data && data.length === postsPerPage;
+    
   } catch (err) {
-    error.value = 'Failed to load posts: ' + err.message;
+    error.value = err.message || 'Failed to load posts';
+    console.error('Load posts error:', err);
   } finally {
     loading.value = false;
   }
 }
 
-function loadMore() {
-  page.value++;
-  loadPosts();
-}
-
-onMounted(() => {
-  loadPosts();
-});
-</script>
-
-<style scoped>
-.feed-posts {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
-}
-
-.error {
-  color: #e74c3c;
-  background: #fdf2f2;
-  border-radius: 4px;
-}
-
-.posts-list {
-  list-style: none;
-  padding: 0;
-}
-
-.post-item {
-  background: white;
-  border: 1px solid #e1e8ed;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  padding: 1rem;
-}
-
-.post-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #657786;
-}
-
-.post-author {
-  font-weight: bold;
-  color: #1da1f2;
-}
-
-.post-content {
-  line-height: 1.5;
-}
-
-.load-more-btn {
-  display: block;
-  margin: 2rem auto;
-  padding: 0.75rem 1.5rem;
-  background: #1da1f2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.load-more-btn:hover {
-  background: #1991db;
-}
-
-.load-more-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-</style>
+async function loadMore() {
+  if (!hasMore.value || loading.value) return;*_
