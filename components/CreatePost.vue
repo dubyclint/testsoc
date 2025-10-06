@@ -19,7 +19,9 @@
 
 <script setup>
 import { ref } from 'vue';
-import { supabase } from '~/utils/supabase';
+
+const supabase = useSupabaseClient();
+const user = useSupabaseUser();
 
 const content = ref('');
 const loading = ref(false);
@@ -34,16 +36,17 @@ const submitPost = async () => {
   error.value = '';
   
   try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    if (!user.value) {
+      throw new Error('You must be logged in to post');
+    }
+
     const { data, error: supabaseError } = await supabase
       .from('posts')
       .insert([
         { 
           content: content.value.trim(),
-          author: user?.email || 'Anonymous',
-          user_id: user?.id || null,
+          author: user.value.email || 'Anonymous',
+          user_id: user.value.id,
           created_at: new Date().toISOString() 
         }
       ])
@@ -85,7 +88,7 @@ const submitPost = async () => {
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease;
 }
 
 .post-textarea:focus {
@@ -98,44 +101,47 @@ const submitPost = async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .help-text {
   color: #6c757d;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  margin: 0;
 }
 
 .submit-btn {
-  padding: 0.5rem 1.5rem;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
   border: none;
+  padding: 0.75rem 1.5rem;
   border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  min-width: 100px;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, #0056b3, #004494);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
 .submit-btn:disabled {
-  background-color: #6c757d;
+  background: #6c757d;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .error {
   color: #dc3545;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   margin: 0.5rem 0 0 0;
   padding: 0.5rem;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+  background: #f8d7da;
   border-radius: 4px;
+  border: 1px solid #f5c6cb;
 }
 </style>
-
-
