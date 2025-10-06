@@ -1,3 +1,4 @@
+// nuxt.config.ts
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@pinia/nuxt", "@nuxtjs/supabase"],
@@ -62,4 +63,5 @@ export default defineNuxtConfig({
     compressPublicAssets: true
   }
 })
+
 
