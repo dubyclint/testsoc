@@ -1,204 +1,173 @@
-<script setup>
-import { ref, onMounted } from 'vue';
-import { gun } from '~/gundb/client';
-import CreatePost from '~/components/posts/CreatePost.vue';
-import MarkdownIt from 'markdown-it';
-import emojione from 'emojione';
-
-const posts = ref([]);
-const loading = ref(true);
-
-const md = new MarkdownIt();
-
-onMounted(() => {
-  // Load posts from GunDB
-  gun.get('posts').map().on((data, key) => {
-    if (data && data.content && data.timestamp) {
-      const existingPost = posts.value.find(p => p.id === key);
-      if (!existingPost) {
-        posts.value.push({
-          id: key,
-          ...data
-        });
-        // Sort by timestamp (newest first)
-        posts.value.sort((a, b) => b.timestamp - a.timestamp);
-      }
-    }
-  });
-  
-  loading.value = false;
-});
-
-function handleNewPost(post) {
-  posts.value.unshift(post);
-}
-
-function formatContent(content) {
-  // Convert markdown and emojis
-  let formatted = md.render(content);
-  formatted = emojione.toImage(formatted);
-  return formatted;
-}
-
-function formatTime(timestamp) {
-  const now = Date.now();
-  const diff = now - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m`;
-  if (hours < 24) return `${hours}h`;
-  return `${days}d`;
-}
-</script>
-
 <template>
   <div class="feed-posts">
-    <CreatePost @post-created="handleNewPost" />
-    
-    <div v-if="loading" class="loading">
+    <CreatePost @post-created="onPostCreated" />
+    <h2>Latest Posts</h2>
+    <div v-if="loading && posts.length === 0" class="loading">
       Loading posts...
     </div>
-    
-    <div v-else-if="posts.length === 0" class="no-posts">
-      <p>No posts yet. Be the first to share something!</p>
+    <div v-else-if="error" class="error">
+      {{ error }}
     </div>
-    
-    <div v-else class="posts-list">
-      <article 
-        v-for="post in posts" 
-        :key="post.id" 
-        class="post-card"
-      >
+    <ul v-else class="posts-list">
+      <li v-for="post in posts" :key="post.id" class="post-item">
         <div class="post-header">
-          <div class="author-info">
-            <img 
-              :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author}`" 
-              :alt="post.author"
-              class="author-avatar"
-            />
-            <div>
-              <h4 class="author-name">{{ post.author }}</h4>
-              <time class="post-time">{{ formatTime(post.timestamp) }}</time>
-            </div>
-          </div>
+          <span class="post-author">{{ post.author || 'Anonymous' }}</span>
+          <span class="post-date">{{ formatDate(post.created_at) }}</span>
         </div>
-        
-        <div class="post-content" v-html="formatContent(post.content)"></div>
-        
-        <div class="post-actions">
-          <button class="action-btn like-btn">
-            ❤️ {{ post.likes || 0 }}
-          </button>
-          <button class="action-btn comment-btn">
-            💬 {{ post.comments || 0 }}
-          </button>
-          <button class="action-btn share-btn">
-            🔄 Share
-          </button>
-        </div>
-      </article>
-    </div>
+        <div v-html="renderPost(post.content)" class="post-content"></div>
+      </li>
+    </ul>
+    <button 
+      v-if="hasMore" 
+      @click="loadMore" 
+      :disabled="loading"
+      class="load-more-btn"
+    >
+      {{ loading ? 'Loading...' : 'Load More' }}
+    </button>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import CreatePost from '~/components/posts/CreatePost.vue';
+import MarkdownIt from 'markdown-it';
+import EmojiConvertor from 'emoji-js';
+import { supabase } from '~/utils/supabase';
+
+const md = new MarkdownIt();
+const emoji = new EmojiConvertor();
+emoji.img_set = 'emojione';
+emoji.img_sets.emojione.path = 'https://cdn.jsdelivr.net/emojione/assets/4.5/png/64/';
+
+const posts = ref([]);
+const page = ref(1);
+const loading = ref(false);
+const error = ref('');
+const hasMore = ref(true);
+const postsPerPage = 10;
+
+function renderPost(content) {
+  if (!content) return '';
+  const markdown = md.render(content);
+  return emoji.replace_colons(markdown);
+}
+
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString();
+}
+
+function onPostCreated(newPost) {
+  posts.value.unshift(newPost);
+}
+
+async function loadPosts() {
+  try {
+    loading.value = true;
+    error.value = '';
+    
+    const { data, error: supabaseError } = await supabase
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range((page.value - 1) * postsPerPage, page.value * postsPerPage - 1);
+    
+    if (supabaseError) throw supabaseError;
+    
+    if (data && data.length > 0) {
+      if (page.value === 1) {
+        posts.value = data;
+      } else {
+        posts.value.push(...data);
+      }
+      hasMore.value = data.length === postsPerPage;
+    } else {
+      hasMore.value = false;
+    }
+  } catch (err) {
+    error.value = 'Failed to load posts: ' + err.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+function loadMore() {
+  page.value++;
+  loadPosts();
+}
+
+onMounted(() => {
+  loadPosts();
+});
+</script>
 
 <style scoped>
 .feed-posts {
   max-width: 600px;
   margin: 0 auto;
+  padding: 1rem;
+}
+
+.loading, .error {
+  text-align: center;
   padding: 2rem;
 }
 
-.loading, .no-posts {
-  text-align: center;
-  padding: 2rem;
-  color: #6b7280;
+.error {
+  color: #e74c3c;
+  background: #fdf2f2;
+  border-radius: 4px;
 }
 
 .posts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
 }
 
-.post-card {
+.post-item {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 1rem;
 }
 
 .post-header {
-  margin-bottom: 1rem;
-}
-
-.author-info {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #657786;
 }
 
-.author-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.author-name {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.post-time {
-  font-size: 0.875rem;
-  color: #6b7280;
+.post-author {
+  font-weight: bold;
+  color: #1da1f2;
 }
 
 .post-content {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  color: #374151;
+  line-height: 1.5;
 }
 
-.post-actions {
-  display: flex;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f3f4f6;
-}
-
-.action-btn {
-  background: none;
+.load-more-btn {
+  display: block;
+  margin: 2rem auto;
+  padding: 0.75rem 1.5rem;
+  background: #1da1f2;
+  color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.875rem;
-  transition: background 0.2s;
+  font-size: 1rem;
 }
 
-.action-btn:hover {
-  background: #f3f4f6;
+.load-more-btn:hover {
+  background: #1991db;
 }
 
-.like-btn:hover {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-.comment-btn:hover {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.share-btn:hover {
-  background: #f0f9ff;
-  color: #0891b2;
+.load-more-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 </style>
+
