@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import FeedPosts from '~/components/FeedPosts.vue';
+import FeedPosts from '~/components/posts/FeedPosts.vue';
 
 definePageMeta({
   middleware: 'auth',
