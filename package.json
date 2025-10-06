@@ -19,13 +19,16 @@
     "@supabase/supabase-js": "^2.38.4",
     "@nuxtjs/supabase": "^1.1.6",
     "emoji-js": "^3.9.0",
+    "gun": "^0.2020.1240",
     "markdown-it": "^14.1.0",
     "nuxt": "^3.13.0",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
-    "@nuxt/devtools": "latest",
+    "@nuxt/devtools": "^1.5.2",
+    "@vue/compiler-sfc": "^3.5.17",
+    "vite": "^6.0.2",
     "webpack-bundle-analyzer": "^4.10.1"
   }
 }
