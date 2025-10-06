@@ -1,7 +1,7 @@
 export default defineNuxtRouteMiddleware((to, from) => {
-  const { user, isAuthenticated } = useAuth();
+  const user = useSupabaseUser();
   
-  if (!isAuthenticated.value) {
-    return navigateTo('/login');
+  if (!user.value) {
+    return navigateTo('/auth');
   }
 });
