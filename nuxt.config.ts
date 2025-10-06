@@ -3,8 +3,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@pinia/nuxt", "@nuxtjs/supabase"],
   
+  // Runtime configuration
   runtimeConfig: {
+    // Private keys (only available on server-side)
     supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+    
+    // Public keys (exposed to client-side)
     public: {
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -12,45 +16,43 @@ export default defineNuxtConfig({
     }
   },
 
+  // Supabase module configuration
   supabase: {
-    redirect: false,
-    clientOptions: {
-      auth: {
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    }
+    redirect: false
   },
 
-  pinia: {
-    storesDirs: ['./stores/**']
-  },
-
+  // SSR configuration
   ssr: true,
   
+  // Build optimization
   build: {
-    transpile: []
+    transpile: ['@supabase/supabase-js']
   },
 
+  // Vite configuration for bundle optimization  
   vite: {
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
+        external: ['gun'], // Externalize gun for dynamic import
         output: {
           manualChunks: {
             'vendor-vue': ['vue', 'vue-router'],
-            'vendor-supabase': ['@supabase/supabase-js']
+            'vendor-supabase': ['@supabase/supabase-js'],
           }
         }
       }
     },
     optimizeDeps: {
-      include: ['@supabase/supabase-js']
+      include: ['@supabase/supabase-js'],
+      exclude: ['gun'] // Exclude gun from pre-bundling
     }
   },
 
+  // CSS optimization
   css: ['~/assets/css/main.css'],
 
+  // Component optimization
   components: [
     {
       path: '~/components',
@@ -58,10 +60,12 @@ export default defineNuxtConfig({
     }
   ],
 
+  // Nitro configuration
   nitro: {
     preset: 'node-server',
     compressPublicAssets: true
   }
 })
+
 
 
