@@ -1,26 +1,73 @@
-// stores/user.ts - Remove the top-level import
-// DELETE: import { supabase } from '~/utils/supabase'
-
+// stores/user.ts
 export const useUserStore = defineStore('user', () => {
-  // Use lazy access instead
-  const getSupabase = () => {
-    if (process.client) {
-      const { $supabase } = useNuxtApp()
-      return $supabase
-    }
-    return null
-  }
+  const supabase = useSupabaseClient();
+  const user = useSupabaseUser();
   
-  const login = async (email, password) => {
-    const supabase = getSupabase()
-    if (!supabase) return
+  const profile = ref(null);
+  const loading = ref(false);
+  const isAdmin = computed(() => profile.value?.role === 'admin');
+  const isAuthenticated = computed(() => !!user.value);
+  
+  const fetchProfile = async () => {
+    if (!user.value) return;
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    // ... rest of your logic
-  }
+    try {
+      loading.value = true;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.value.id)
+        .single();
+        
+      if (error && error.code !== 'PGRST116') throw error;
+      profile.value = data;
+    } catch (err) {
+      console.error('Profile fetch error:', err);
+    } finally {
+      loading.value = false;
+    }
+  };
   
-  return { login, /* other methods */ }
-})
+  const updateProfile = async (updates: any) => {
+    if (!user.value) return;
+    
+    try {
+      loading.value = true;
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({ 
+          id: user.value.id, 
+          ...updates,
+          updated_at: new Date().toISOString()
+        });
+        
+      if (error) throw error;
+      await fetchProfile();
+    } catch (err) {
+      console.error('Profile update error:', err);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  };
+  
+  // Watch for user changes and fetch profile
+  watch(user, (newUser) => {
+    if (newUser) {
+      fetchProfile();
+    } else {
+      profile.value = null;
+    }
+  }, { immediate: true });
+  
+  return {
+    user: readonly(user),
+    profile: readonly(profile),
+    loading: readonly(loading),
+    isAdmin,
+    isAuthenticated,
+    fetchProfile,
+    updateProfile
+  };
+});
+
