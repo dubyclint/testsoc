@@ -10,20 +10,22 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "optimize": "node scripts/optimize-all.js",
-    "postinstall": "nuxt prepare || echo 'prepare skipped'"
-  },
-  "devDependencies": {
-    "@nuxt/devtools": "latest",
-    "nuxt": "^3.13.0",
-    "vue": "latest",
-    "vue-router": "latest",
-    "webpack-bundle-analyzer": "^4.10.1"
+    "postinstall": "nuxt prepare",
+    "start": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "pinia": "^2.1.7",
     "@supabase/supabase-js": "^2.38.4",
     "@nuxtjs/supabase": "^1.1.6",
-    "emoji-js": "^3.9.0"
+    "emoji-js": "^3.9.0",
+    "nuxt": "^3.13.0",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "webpack-bundle-analyzer": "^4.10.1"
   }
 }
+
