@@ -10,7 +10,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "optimize": "node scripts/optimize-all.js",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare || echo 'prepare skipped'"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -27,4 +27,3 @@
     "emoji-js": "^3.9.0"
   }
 }
-
