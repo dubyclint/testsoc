@@ -74,4 +74,22 @@ export class EscrowController {
         .insert({
           user_id: seller_id,
           type: 'escrow_created',
-          title: 'New*_
+          title: 'New Escrow Created',
+          message: `You have received a new escrow request for ${amount} ${currency}`,
+          created_at: new Date().toISOString()
+        });
+
+      res.status(201).json({
+        success: true,
+        message: 'Escrow created successfully',
+        escrow
+      });
+
+    } catch (error) {
+      console.error('Create escrow error:', error);
+      res.status(500).json({ error: 'Failed to create escrow' });
+    }
+  }
+
+  // Add other methods here...
+}
