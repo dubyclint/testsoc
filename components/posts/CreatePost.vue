@@ -86,8 +86,13 @@ function publishPost() {
     id: Date.now().toString()
   };
   
-  // Store in GunDB
-  gun.get('posts').set(post);
+  // Store in GunDB - only on client side
+  if (process.client) {
+    const gunInstance = gun();
+    if (gunInstance) {
+      gunInstance.get('posts').set(post);
+    }
+  }
   
   // Emit event for parent component
   emit('postCreated', post);
@@ -116,6 +121,7 @@ function publishPost() {
   resize: vertical;
   min-height: 100px;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .post-textarea:focus {
@@ -206,3 +212,4 @@ function publishPost() {
   background: white;
 }
 </style>
+
