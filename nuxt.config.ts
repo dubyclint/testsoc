@@ -35,7 +35,7 @@ export default defineNuxtConfig({
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
-        external: ['gun'],
+        // REMOVED: external: ['gun'] - this was causing the conflict
         output: {
           manualChunks: {
             'vendor-vue': ['vue', 'vue-router'],
@@ -45,8 +45,8 @@ export default defineNuxtConfig({
       }
     },
     optimizeDeps: {
-      include: ['@supabase/supabase-js'],
-      exclude: ['gun']
+      include: ['@supabase/supabase-js']
+      // REMOVED: exclude: ['gun'] - this was causing the conflict
     }
   },
   css: ['~/assets/css/main.css'],
@@ -69,8 +69,13 @@ export default defineNuxtConfig({
         {
           src: 'https://cdn.jsdelivr.net/npm/gun/gun.min.js',
           defer: true
+        },
+        {
+          src: 'https://cdn.jsdelivr.net/npm/gun/sea.js',
+          defer: true
         }
       ]
     }
   }
 })
+
