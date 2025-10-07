@@ -1,96 +1,155 @@
-// gundb/client.js
-import Gun from 'gun'
-import 'gun/sea'
+// gundb/client.js - SSR-Safe Version
+// Initialize only on client side to prevent SSR errors
 
-// Initialize Gun with your peer configuration
-const gun = Gun(['https://gun-messaging-peer.herokuapp.com/gun'])
+let gun = null;
+let user = null;
+let SEA = null;
 
-// Create user instance for authentication - LAZY INITIALIZATION
-let user = null
-const getUser = () => {
-  if (!user) {
-    user = gun.user()
+// SSR-safe initialization
+function initGun() {
+  if (typeof window === 'undefined') {
+    // Server-side: return mock to prevent errors
+    return null;
   }
-  return user
+  
+  if (!gun) {
+    // Client-side: use window.Gun from CDN
+    const Gun = window.Gun;
+    if (!Gun) {
+      console.warn('Gun not loaded. Make sure gun.min.js is loaded from CDN.');
+      return null;
+    }
+    
+    gun = Gun(['https://gun-messaging-peer.herokuapp.com/gun']);
+    SEA = Gun.SEA;
+  }
+  
+  return gun;
 }
 
-// Export SEA for encryption utilities
-const SEA = Gun.SEA
+// Create user instance for authentication - LAZY INITIALIZATION
+const getUser = () => {
+  const gunInstance = initGun();
+  if (!gunInstance) return null;
+  
+  if (!user) {
+    user = gunInstance.user();
+  }
+  return user;
+};
 
 // Helper functions for common operations
 const gunHelpers = {
   // Get data from a specific path
   async get(path) {
+    const gunInstance = initGun();
+    if (!gunInstance) return null;
+    
     return new Promise((resolve) => {
-      gun.get(path).once((data) => {
-        resolve(data)
-      })
-    })
+      gunInstance.get(path).once((data) => {
+        resolve(data);
+      });
+    });
   },
 
   // Set data at a specific path
   set(path, data) {
-    gun.get(path).put(data)
+    const gunInstance = initGun();
+    if (!gunInstance) return;
+    
+    gunInstance.get(path).put(data);
   },
 
   // Authentication helpers
   auth: {
     async create(username, password) {
+      const userInstance = getUser();
+      if (!userInstance) throw new Error('Gun not available');
+      
       return new Promise((resolve, reject) => {
-        getUser().create(username, password, (ack) => {
+        userInstance.create(username, password, (ack) => {
           if (ack.err) {
-            reject(new Error(ack.err))
+            reject(new Error(ack.err));
           } else {
-            resolve(ack)
+            resolve(ack);
           }
-        })
-      })
+        });
+      });
     },
 
     async login(username, password) {
+      const userInstance = getUser();
+      if (!userInstance) throw new Error('Gun not available');
+      
       return new Promise((resolve, reject) => {
-        getUser().auth(username, password, (ack) => {
+        userInstance.auth(username, password, (ack) => {
           if (ack.err) {
-            reject(new Error(ack.err))
+            reject(new Error(ack.err));
           } else {
-            resolve(ack)
+            resolve(ack);
           }
-        })
-      })
+        });
+      });
     },
 
     logout() {
-      getUser().leave()
+      const userInstance = getUser();
+      if (userInstance) {
+        userInstance.leave();
+      }
     },
 
     getCurrentUser() {
-      return getUser().is
+      const userInstance = getUser();
+      return userInstance ? userInstance.is : null;
     }
   },
 
   // Post operations
   posts: {
     create(postData) {
+      const gunInstance = initGun();
+      const userInstance = getUser();
+      if (!gunInstance) return null;
+      
       const post = {
         ...postData,
-        id: Gun.node.lex,
-        timestamp: Gun.state(),
-        author: getUser().is?.pub || 'anonymous'
-      }
-      gun.get('posts').set(post)
-      return post
+        id: window.Gun ? window.Gun.node.lex : Date.now().toString(),
+        timestamp: window.Gun ? window.Gun.state() : Date.now(),
+        author: userInstance?.is?.pub || 'anonymous'
+      };
+      
+      gunInstance.get('posts').set(post);
+      return post;
     },
 
     getAll(callback) {
-      gun.get('posts').map().on(callback)
+      const gunInstance = initGun();
+      if (!gunInstance) return;
+      
+      gunInstance.get('posts').map().on(callback);
     },
 
     getById(id, callback) {
-      gun.get('posts').get(id).on(callback)
+      const gunInstance = initGun();
+      if (!gunInstance) return;
+      
+      gunInstance.get('posts').get(id).on(callback);
     }
   }
-}
+};
 
-// Export everything needed - use lazy getter for user
-export { gun, getUser as user, SEA, gunHelpers }
-export default gun
+// Export everything needed - maintain original exports
+export { initGun as gun, getUser as user, gunHelpers };
+
+// For SEA access
+export const getSEA = () => {
+  if (typeof window !== 'undefined' && window.Gun) {
+    return window.Gun.SEA;
+  }
+  return null;
+};
+
+// Default export for compatibility
+export default initGun;
+
