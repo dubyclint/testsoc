@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     
     // Public keys (available on client-side)
     public: {
-      supabaseUrl: process.env.https://cvzrhucbvezqwbesthek.supabase.co,
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
       appName: process.env.NUXT_PUBLIC_APP_NAME || 'SocialVerse',
       apiBaseUrl: process.env.API_BASE_URL || 'https://testp.zeabur.app',
@@ -73,7 +73,7 @@ export default defineNuxtConfig({
   components: [
     {
       path: '~/components',
-      pathPrefix: false,
+      pathPrefix: false
     }
   ],
   
@@ -100,4 +100,5 @@ export default defineNuxtConfig({
     }
   }
 })
+
 
