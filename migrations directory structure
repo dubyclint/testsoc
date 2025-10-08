@@ -1,4 +1,0 @@
-/database/
-  └── migrations/
-      ├── 001_initial_schema.sql
-      └── 002_add_indexes.sql
