@@ -32,8 +32,6 @@
     "@vue/compiler-sfc": "^3.5.17",
     "vite": "^6.0.2",
     "webpack-bundle-analyzer": "^4.10.1",
-    
-    // New additions (hybrid TS/JS support)
     "typescript": "^5.3.0",
     "@nuxt/types": "^3.0.0",
     "@types/node": "^20.0.0",
@@ -46,4 +44,5 @@
     "eslint-plugin-vue": "^9.17.0"
   }
 }
+
  
