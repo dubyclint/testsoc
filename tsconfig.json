@@ -1,0 +1,12 @@
+// Path-based imports
+import { useAuth } from '@/composables/useAuth'
+import { EthClient } from '~/lib/eth-client'
+import UserCard from '~/components/UserCard.vue'
+import { userStore } from '~/stores/user'
+
+// Server imports
+import type { User } from '~/server/models/User'
+import { escrowController } from '~/server/controllers/escrowController'
+
+// Client imports  
+import { useDevice } from '~/client/composables/useDevice'
