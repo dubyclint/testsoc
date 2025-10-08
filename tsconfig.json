@@ -1,0 +1,88 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "declaration": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "jsx": "preserve",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "@nuxt/types",
+      "@pinia/nuxt",
+      "@nuxtjs/supabase"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@/*": ["./*"],
+      "~~/*": ["./*"],
+      "@@/*": ["./*"],
+      "#app": ["./node_modules/nuxt/dist/app"],
+      "#app/*": ["./node_modules/nuxt/dist/app/*"],
+      "#build": ["./.nuxt"],
+      "#build/*": ["./.nuxt/*"],
+      "#components": ["./.nuxt/components"],
+      "#imports": ["./.nuxt/imports"],
+      "#head": ["./node_modules/@unhead/vue/dist/index"],
+      "#head/*": ["./node_modules/@unhead/vue/dist/*"]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.vue",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    ".nuxt/**/*",
+    "nuxt.config.ts",
+    "app.vue",
+    "server/**/*",
+    "middleware/**/*",
+    "plugins/**/*",
+    "composables/**/*",
+    "utils/**/*",
+    "stores/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    ".nuxt/dist",
+    ".output",
+    "dist",
+    "coverage",
+    ".nyc_output",
+    ".cache",
+    "static"
+  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  },
+  "vueCompilerOptions": {
+    "target": 3
+  }
+}
+```~~
