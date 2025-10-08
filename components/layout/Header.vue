@@ -20,12 +20,17 @@
 </template>
 
 <script setup>
-const user = useSupabaseUser();
-const { logout } = useAuth();
+const user = useSupabaseUser()
+const supabase = useSupabaseClient()
 
 const handleLogout = async () => {
-  await logout();
-};
+  try {
+    await supabase.auth.signOut()
+    await navigateTo('/')
+  } catch (error) {
+    console.error('Logout error:', error)
+  }
+}
 </script>
 
 <style scoped>
