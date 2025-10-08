@@ -77,14 +77,6 @@ export default defineNuxtConfig({
     }
   ],
   
-  nitro: {
-    preset: 'node-server',
-    compressPublicAssets: true,
-    experimental: {
-      wasm: true
-    }
-  },
-  
   app: {
     head: {
       script: [
@@ -100,5 +92,3 @@ export default defineNuxtConfig({
     }
   }
 })
-
-
