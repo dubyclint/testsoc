@@ -1,16 +1,15 @@
 <template>
   <div class="app-layout">
-    <Header />
+    <LayoutHeader />
     <main class="main-content">
       <slot />
     </main>
-    <Footer />
+    <LayoutFooter />
   </div>
 </template>
 
 <script setup>
-import Header from '~/components/layout/Header.vue'
-import Footer from '~/components/layout/Footer.vue'
+// No imports needed - Nuxt auto-imports components
 </script>
 
 <style scoped>
