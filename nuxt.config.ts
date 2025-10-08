@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     
     // Public keys (available on client-side)
     public: {
-      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+      supabaseUrl: process.env.https://cvzrhucbvezqwbesthek.supabase.co,
       supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
       appName: process.env.NUXT_PUBLIC_APP_NAME || 'SocialVerse',
       apiBaseUrl: process.env.API_BASE_URL || 'https://testp.zeabur.app',
