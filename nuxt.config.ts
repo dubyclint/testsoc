@@ -13,13 +13,13 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase'
   ],
 
-  // Supabase configuration - HARDCODED VALUES
+  // Supabase configuration - HARDCODED VALUES with CORRECT ROUTES
   supabase: {
     url: 'https://cvzrhucbvezqwbesthek.supabase.co',
     key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2enJodWNidmV6cXdiZXN0aGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzgzMjYsImV4cCI6MjA3NDk1NDMyNn0.3k5QE5wTb0E52CqNxwt_HaU9jUGDlYsHWuP7rQVjY4I',
     redirectOptions: {
-      login: '/auth/login',
-      callback: '/auth/callback',
+      login: '/auth',
+      callback: '/auth',
       exclude: ['/']
     }
   },
