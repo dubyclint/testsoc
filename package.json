@@ -37,9 +37,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "eslint": "^9.0.0",
-    "eslint-plugin-vue": "^9.17.0",
-    "@eslint/config-array": "^0.18.0",
-    "@eslint/object-schema": "^2.1.4"
+    "eslint-plugin-vue": "^9.17.0"
   },
   "overrides": {
     "glob": "^10.0.0",
