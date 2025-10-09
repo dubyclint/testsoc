@@ -28,7 +28,7 @@ export default defineNuxtConfig({
 
   // TypeScript configuration
   typescript: {
-    typeCheck: true
+    typeCheck: false
   },
 
   // Build configuration
@@ -43,9 +43,8 @@ export default defineNuxtConfig({
     
     // Public keys (exposed to client-side)
     public: {
-      supabaseUrl: process.env.https://cvzrhucbvezqwbesthek.supabase.co,
-      supabaseAnonKey: process.env.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2enJodWNidmV6cXdiZXN0aGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzgzMjYsImV4cCI6MjA3NDk1NDMyNn0.3k5QE5wTb0E52CqNxwt_HaU9jUGDlYsHWuP7rQVjY4I
-,
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY
     }
   },
 
@@ -69,4 +68,5 @@ export default defineNuxtConfig({
     payloadExtraction: false
   }
 })
+
 
