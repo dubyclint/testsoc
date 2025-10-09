@@ -1,95 +1,71 @@
+// nuxt.config.ts
 export default defineNuxtConfig({
-  devtools: { enabled: true },
-  modules: ["@pinia/nuxt", "@nuxtjs/supabase"],
-  
+  // CRITICAL: This ensures Node.js server output instead of serverless
+  nitro: {
+    preset: 'node-server'
+  },
+
+  // Your existing modules
+  modules: [
+    '@pinia/nuxt',
+    '@nuxtjs/supabase'
+  ],
+
+  // Supabase configuration
   supabase: {
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/callback',
       exclude: ['/']
-    },
-    redirect: false
-  },
-  
-  runtimeConfig: {
-    // Server-only keys
-    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
-    fcmServerKey: process.env.FCM_SERVER_KEY,
-    gunSecret: process.env.GUN_SECRET,
-    jwtSecret: process.env.JWT_SECRET,
-    infuraUrl: process.env.INFURA_URL,
-    ethPrivateKey: process.env.ETH_PRIVATE_KEY,
-    privateKey: process.env.PRIVATE_KEY,
-    
-    // Public keys (available on client-side)
-    public: {
-      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
-      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
-      appName: process.env.NUXT_PUBLIC_APP_NAME || 'SocialVerse',
-      apiBaseUrl: process.env.API_BASE_URL || 'https://testp.zeabur.app',
-      firebaseApiKey: process.env.FIREBASE_API_KEY,
-      onesignalAppId: process.env.ONESIGNAL_APP_ID,
-      gunPeers: process.env.GUN_PEERS,
-      providerUrl: process.env.PROVIDER_URL,
-      rpcUrl: process.env.RPC_URL,
-      contractAddress: process.env.CONTRACT_ADDRESS,
-      ethClientType: process.env.ETH_CLIENT_TYPE || 'ethers'
     }
   },
 
-  pinia: {
-    storesDirs: ['./stores/**']
-  },
-  
-  ssr: true,
-  
-  build: {
-    transpile: ['@supabase/supabase-js']
-  },
-  
-  vite: {
-    define: {
-      global: 'globalThis'
-    },
-    build: {
-      chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'vendor-vue': ['vue', 'vue-router'],
-            'vendor-supabase': ['@supabase/supabase-js'],
-            'vendor-gun': ['gun']
-          }
-        }
-      }
-    },
-    optimizeDeps: {
-      include: ['@supabase/supabase-js', 'gun']
-    }
-  },
-  
+  // CSS configuration
   css: ['~/assets/css/main.css'],
-  
-  components: [
-    {
-      path: '~/components',
-      pathPrefix: false
+
+  // Development tools
+  devtools: { enabled: true },
+
+  // TypeScript configuration
+  typescript: {
+    typeCheck: true
+  },
+
+  // Build configuration
+  build: {
+    transpile: ['emoji-js']
+  },
+
+  // Runtime config for environment variables
+  runtimeConfig: {
+    // Private keys (only available on server-side)
+    // Add your private environment variables here
+    
+    // Public keys (exposed to client-side)
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
     }
-  ],
-  
+  },
+
+  // App configuration
   app: {
     head: {
-      script: [
-        {
-          src: 'https://cdn.jsdelivr.net/npm/gun/gun.min.js',
-          defer: true
-        },
-        {
-          src: 'https://cdn.jsdelivr.net/npm/gun/sea.js',
-          defer: true
-        }
+      title: 'SocialVerse',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'SocialVerse - Connect and Share' }
       ]
     }
+  },
+
+  // Server-side rendering configuration
+  ssr: true,
+
+  // Experimental features (if needed)
+  experimental: {
+    payloadExtraction: false
   }
 })
 
