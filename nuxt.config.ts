@@ -3,8 +3,8 @@ export default defineNuxtConfig({
   // CRITICAL: This ensures Node.js server output instead of serverless
   nitro: {
     preset: 'node-server',
-    // Configure port for production
-    port: process.env.PORT || 8080
+    port: process.env.PORT || 8080,
+    host: process.env.HOST || '0.0.0.0'
   },
 
   // Your existing modules
@@ -13,8 +13,10 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase'
   ],
 
-  // Supabase configuration
+  // Supabase configuration - HARDCODED VALUES
   supabase: {
+    url: 'https://cvzrhucbvezqwbesthek.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2enJodWNidmV6cXdiZXN0aGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzgzMjYsImV4cCI6MjA3NDk1NDMyNn0.3k5QE5wTb0E52CqNxwt_HaU9jUGDlYsHWuP7rQVjY4I',
     redirectOptions: {
       login: '/auth/login',
       callback: '/auth/callback',
@@ -38,15 +40,12 @@ export default defineNuxtConfig({
     transpile: ['emoji-js']
   },
 
-  // Runtime config for environment variables
+  // Runtime config for environment variables - HARDCODED VALUES
   runtimeConfig: {
-    // Private keys (only available on server-side)
-    // Add your private environment variables here
-    
-    // Public keys (exposed to client-side)
+    // Public keys (exposed to client-side) - REQUIRED for Supabase
     public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseAnonKey: process.env.SUPABASE_ANON_KEY
+      supabaseUrl: 'https://cvzrhucbvezqwbesthek.supabase.co',
+      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2enJodWNidmV6cXdiZXN0aGVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzgzMjYsImV4cCI6MjA3NDk1NDMyNn0.3k5QE5wTb0E52CqNxwt_HaU9jUGDlYsHWuP7rQVjY4I'
     }
   },
 
