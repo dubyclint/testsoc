@@ -4,7 +4,13 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'node-server',
     port: process.env.PORT || 8080,
-    host: process.env.HOST || '0.0.0.0'
+    host: process.env.HOST || '0.0.0.0',
+    // Enable WebSocket support
+    experimental: {
+      wasm: true
+    },
+    // Add WebSocket plugin
+    plugins: ['~/server/plugins/socket.ts']
   },
 
   // Your existing modules
@@ -37,7 +43,7 @@ export default defineNuxtConfig({
 
   // Build configuration
   build: {
-    transpile: ['emoji-js']
+    transpile: ['emoji-js', 'socket.io-client']
   },
 
   // Runtime config for environment variables - HARDCODED VALUES
@@ -67,5 +73,15 @@ export default defineNuxtConfig({
   // Experimental features (if needed)
   experimental: {
     payloadExtraction: false
+  },
+
+  // Vite configuration for WebSocket support
+  vite: {
+    define: {
+      global: 'globalThis'
+    },
+    optimizeDeps: {
+      include: ['socket.io-client']
+    }
   }
 })
