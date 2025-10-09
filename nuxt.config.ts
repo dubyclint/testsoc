@@ -2,7 +2,9 @@
 export default defineNuxtConfig({
   // CRITICAL: This ensures Node.js server output instead of serverless
   nitro: {
-    preset: 'node-server'
+    preset: 'node-server',
+    // Configure port for production
+    port: process.env.PORT || 8080
   },
 
   // Your existing modules
@@ -68,5 +70,3 @@ export default defineNuxtConfig({
     payloadExtraction: false
   }
 })
-
-
